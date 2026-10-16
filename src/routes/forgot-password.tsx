@@ -8,9 +8,9 @@ import { email as emailRule } from "@/lib/validation";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Reset Password — Sanele Sims Academy" },
+      { title: "Reset Password — SS Academy" },
       { name: "description", content: "Get a link to reset your password." },
-      { property: "og:title", content: "Reset Password — Sanele Sims Academy" },
+      { property: "og:title", content: "Reset Password — SS Academy" },
       { property: "og:description", content: "Reset your account password." },
     ],
   }),

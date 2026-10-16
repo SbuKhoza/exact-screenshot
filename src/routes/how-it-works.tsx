@@ -5,9 +5,9 @@ import { HowItWorks, WhyUs } from "@/components/site/sections";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works — Sanele Sims Academy" },
+      { title: "How It Works — SS Academy" },
       { name: "description", content: "Register online in three simple steps." },
-      { property: "og:title", content: "How It Works — Sanele Sims Academy" },
+      { property: "og:title", content: "How It Works — SS Academy" },
       { property: "og:description", content: "Register online in three simple steps." },
     ],
   }),

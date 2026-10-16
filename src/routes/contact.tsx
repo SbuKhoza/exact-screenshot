@@ -5,10 +5,10 @@ import { Contact } from "@/components/site/sections";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Us — Sanele Sims Academy" },
-      { name: "description", content: "Call, email or message Sanele Sims Academy about tutoring." },
-      { property: "og:title", content: "Contact Us — Sanele Sims Academy" },
-      { property: "og:description", content: "Call, email or message Sanele Sims Academy about tutoring." },
+      { title: "Contact Us — SS Academy" },
+      { name: "description", content: "Call, email or message SS Academy about tutoring." },
+      { property: "og:title", content: "Contact Us — SS Academy" },
+      { property: "og:description", content: "Call, email or message SS Academy about tutoring." },
     ],
   }),
   component: ContactUsPage,

@@ -5,9 +5,9 @@ import { About, Contact, Hero, HowItWorks, Subjects, WhyUs } from "@/components/
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sanele Sims Academy — Home Tutoring in South Africa" },
+      { title: "SS Academy — Home Tutoring in South Africa" },
       { name: "description", content: "Empowering learners, one class at a time. Register your child or yourself for Maths, English, Web Development and Animation tutoring." },
-      { property: "og:title", content: "Sanele Sims Academy — Home Tutoring" },
+      { property: "og:title", content: "SS Academy — Home Tutoring" },
       { property: "og:description", content: "Empowering learners, one class at a time. Register online today." },
     ],
   }),
