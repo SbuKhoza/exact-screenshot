@@ -17,7 +17,7 @@ export const Route = createFileRoute("/contact")({
 function ContactUsPage() {
   return (
     <PublicPage>
-      <PageIntro eyebrow="Contact" title="Contact Us">Call, email or message Sanele Sims Academy about tutoring.</PageIntro>
+      <PageIntro eyebrow="Contact" title="Contact Us">Call, email or message SS Academy about tutoring.</PageIntro>
       <Contact />
     </PublicPage>
   );
