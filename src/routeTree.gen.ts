@@ -10,33 +10,271 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SubjectsRouteImport } from './routes/subjects'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ParentIndexRouteImport } from './routes/parent.index'
+import { Route as ParentProfileRouteImport } from './routes/parent.profile'
+import { Route as RegisterIndexRouteImport } from './routes/register.index'
+import { Route as RegisterParentRouteImport } from './routes/register.parent'
+import { Route as RegisterStudentRouteImport } from './routes/register.student'
+import { Route as StudentIndexRouteImport } from './routes/student.index'
+import { Route as StudentDetailsRouteImport } from './routes/student.details'
+import { Route as ParentChildrenChildIdRouteImport } from './routes/parent.children.$childId'
+import { Route as ParentChildrenNewRouteImport } from './routes/parent.children.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubjectsRoute = SubjectsRouteImport.update({
+  id: '/subjects',
+  path: '/subjects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentIndexRoute = ParentIndexRouteImport.update({
+  id: '/parent/',
+  path: '/parent/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentProfileRoute = ParentProfileRouteImport.update({
+  id: '/parent/profile',
+  path: '/parent/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterIndexRoute = RegisterIndexRouteImport.update({
+  id: '/register/',
+  path: '/register/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterParentRoute = RegisterParentRouteImport.update({
+  id: '/register/parent',
+  path: '/register/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterStudentRoute = RegisterStudentRouteImport.update({
+  id: '/register/student',
+  path: '/register/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentIndexRoute = StudentIndexRouteImport.update({
+  id: '/student/',
+  path: '/student/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentDetailsRoute = StudentDetailsRouteImport.update({
+  id: '/student/details',
+  path: '/student/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentChildrenChildIdRoute = ParentChildrenChildIdRouteImport.update({
+  id: '/parent/children/$childId',
+  path: '/parent/children/$childId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentChildrenNewRoute = ParentChildrenNewRouteImport.update({
+  id: '/parent/children/new',
+  path: '/parent/children/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
+  '/subjects': typeof SubjectsRoute
+  '/terms': typeof TermsRoute
+  '/parent/profile': typeof ParentProfileRoute
+  '/register/parent': typeof RegisterParentRoute
+  '/register/student': typeof RegisterStudentRoute
+  '/student/details': typeof StudentDetailsRoute
+  '/parent/': typeof ParentIndexRoute
+  '/register/': typeof RegisterIndexRoute
+  '/student/': typeof StudentIndexRoute
+  '/parent/children/$childId': typeof ParentChildrenChildIdRoute
+  '/parent/children/new': typeof ParentChildrenNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
+  '/subjects': typeof SubjectsRoute
+  '/terms': typeof TermsRoute
+  '/parent/profile': typeof ParentProfileRoute
+  '/register/parent': typeof RegisterParentRoute
+  '/register/student': typeof RegisterStudentRoute
+  '/student/details': typeof StudentDetailsRoute
+  '/parent': typeof ParentIndexRoute
+  '/register': typeof RegisterIndexRoute
+  '/student': typeof StudentIndexRoute
+  '/parent/children/$childId': typeof ParentChildrenChildIdRoute
+  '/parent/children/new': typeof ParentChildrenNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
+  '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
+  '/subjects': typeof SubjectsRoute
+  '/terms': typeof TermsRoute
+  '/parent/profile': typeof ParentProfileRoute
+  '/register/parent': typeof RegisterParentRoute
+  '/register/student': typeof RegisterStudentRoute
+  '/student/details': typeof StudentDetailsRoute
+  '/parent/': typeof ParentIndexRoute
+  '/register/': typeof RegisterIndexRoute
+  '/student/': typeof StudentIndexRoute
+  '/parent/children/$childId': typeof ParentChildrenChildIdRoute
+  '/parent/children/new': typeof ParentChildrenNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/contact'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/login'
+    | '/privacy'
+    | '/subjects'
+    | '/terms'
+    | '/parent/profile'
+    | '/register/parent'
+    | '/register/student'
+    | '/student/details'
+    | '/parent/'
+    | '/register/'
+    | '/student/'
+    | '/parent/children/$childId'
+    | '/parent/children/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/account'
+    | '/contact'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/login'
+    | '/privacy'
+    | '/subjects'
+    | '/terms'
+    | '/parent/profile'
+    | '/register/parent'
+    | '/register/student'
+    | '/student/details'
+    | '/parent'
+    | '/register'
+    | '/student'
+    | '/parent/children/$childId'
+    | '/parent/children/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/account'
+    | '/contact'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/login'
+    | '/privacy'
+    | '/subjects'
+    | '/terms'
+    | '/parent/profile'
+    | '/register/parent'
+    | '/register/student'
+    | '/student/details'
+    | '/parent/'
+    | '/register/'
+    | '/student/'
+    | '/parent/children/$childId'
+    | '/parent/children/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
+  ContactRoute: typeof ContactRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SubjectsRoute: typeof SubjectsRoute
+  TermsRoute: typeof TermsRoute
+  ParentProfileRoute: typeof ParentProfileRoute
+  RegisterParentRoute: typeof RegisterParentRoute
+  RegisterStudentRoute: typeof RegisterStudentRoute
+  StudentDetailsRoute: typeof StudentDetailsRoute
+  ParentIndexRoute: typeof ParentIndexRoute
+  RegisterIndexRoute: typeof RegisterIndexRoute
+  StudentIndexRoute: typeof StudentIndexRoute
+  ParentChildrenChildIdRoute: typeof ParentChildrenChildIdRoute
+  ParentChildrenNewRoute: typeof ParentChildrenNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +286,155 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subjects': {
+      id: '/subjects'
+      path: '/subjects'
+      fullPath: '/subjects'
+      preLoaderRoute: typeof SubjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/': {
+      id: '/parent/'
+      path: '/parent'
+      fullPath: '/parent/'
+      preLoaderRoute: typeof ParentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/profile': {
+      id: '/parent/profile'
+      path: '/parent/profile'
+      fullPath: '/parent/profile'
+      preLoaderRoute: typeof ParentProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register/': {
+      id: '/register/'
+      path: '/register'
+      fullPath: '/register/'
+      preLoaderRoute: typeof RegisterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register/parent': {
+      id: '/register/parent'
+      path: '/register/parent'
+      fullPath: '/register/parent'
+      preLoaderRoute: typeof RegisterParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register/student': {
+      id: '/register/student'
+      path: '/register/student'
+      fullPath: '/register/student'
+      preLoaderRoute: typeof RegisterStudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/': {
+      id: '/student/'
+      path: '/student'
+      fullPath: '/student/'
+      preLoaderRoute: typeof StudentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/details': {
+      id: '/student/details'
+      path: '/student/details'
+      fullPath: '/student/details'
+      preLoaderRoute: typeof StudentDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/children/$childId': {
+      id: '/parent/children/$childId'
+      path: '/parent/children/$childId'
+      fullPath: '/parent/children/$childId'
+      preLoaderRoute: typeof ParentChildrenChildIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/children/new': {
+      id: '/parent/children/new'
+      path: '/parent/children/new'
+      fullPath: '/parent/children/new'
+      preLoaderRoute: typeof ParentChildrenNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
+  ContactRoute: ContactRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
+  SubjectsRoute: SubjectsRoute,
+  TermsRoute: TermsRoute,
+  ParentProfileRoute: ParentProfileRoute,
+  RegisterParentRoute: RegisterParentRoute,
+  RegisterStudentRoute: RegisterStudentRoute,
+  StudentDetailsRoute: StudentDetailsRoute,
+  ParentIndexRoute: ParentIndexRoute,
+  RegisterIndexRoute: RegisterIndexRoute,
+  StudentIndexRoute: StudentIndexRoute,
+  ParentChildrenChildIdRoute: ParentChildrenChildIdRoute,
+  ParentChildrenNewRoute: ParentChildrenNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,24 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PublicPage } from "@/components/site/layout";
+import { About, Contact, Hero, HowItWorks, Subjects, WhyUs } from "@/components/site/sections";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Sanele Sims Academy — Home Tutoring in South Africa" },
+      { name: "description", content: "Empowering learners, one class at a time. Register your child or yourself for Maths, English, Web Development and Animation tutoring." },
+      { property: "og:title", content: "Sanele Sims Academy — Home Tutoring" },
+      { property: "og:description", content: "Empowering learners, one class at a time. Register online today." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <PublicPage>
+      <Hero />
+      <About />
+      <Subjects />
+      <HowItWorks />
+      <WhyUs />
+      <Contact />
+    </PublicPage>
   );
 }
