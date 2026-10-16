@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isParent() { return signedIn() && userDoc().role == 'parent'; }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function str(v, max) { return v is string && v.size() <= max; }
+    function learnerOk(d) {
+      return str(d.firstName, 60) && d.firstName.size() > 0 && str(d.surname, 60) && d.surname.size() > 0
+        && str(d.dateOfBirth, 10) && d.subjects is list && d.subjects.size() > 0
+        && str(d.grade, 40) && str(d.schoolName, 120) && d.schoolName.size() > 0
+        && str(d.cellphoneNumber, 20) && str(d.otherSubject, 80);
+    }
+    function learnerKeys() { return ['firstName','surname','dateOfBirth','cellphoneNumber','subjects','otherSubject','grade','schoolName','updatedAt','changeRequest']; }
+
+    match /users/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role in ['parent', 'student']
+        && request.resource.data.profileCompleted == false
+        && request.resource.data.email == request.auth.token.email;
+      // role can never be changed by the user
+      allow update: if signedIn() && request.auth.uid == uid && onlyChanges(['profileCompleted', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    match /parents/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid && isParent()
+        && request.resource.data.uid == uid
+        && str(request.resource.data.firstName, 60) && str(request.resource.data.surname, 60)
+        && str(request.resource.data.cellphoneNumber, 20);
+      allow delete: if false;
+    }
+
+    match /students/{id} {
+      allow read: if isAdmin() || (signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.uid == request.auth.uid));
+      // parent registering a child
+      allow create: if isParent() && request.resource.data.parentUid == request.auth.uid
+          && request.resource.data.accountType == 'parent_registered' && request.resource.data.uid == null
+          && request.resource.data.registrationStatus == 'pending_review' && learnerOk(request.resource.data)
+        // independent student creating own record (doc id = uid)
+        || (signedIn() && id == request.auth.uid && userDoc().role == 'student'
+          && request.resource.data.uid == request.auth.uid && request.resource.data.parentUid == null
+          && request.resource.data.accountType == 'independent'
+          && request.resource.data.registrationStatus == 'pending_review' && learnerOk(request.resource.data));
+      allow update: if isAdmin() || (signedIn()
+        && (resource.data.parentUid == request.auth.uid || resource.data.uid == request.auth.uid)
+        && onlyChanges(learnerKeys()) && learnerOk(request.resource.data));
+      allow delete: if isAdmin();
+    }
+
+    match /subjects/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /contactMessages/{id} {
+      allow create: if str(request.resource.data.name, 100) && request.resource.data.name.size() > 0
+        && str(request.resource.data.email, 255) && request.resource.data.email.matches('.+@.+\\..+')
+        && str(request.resource.data.subject, 120) && str(request.resource.data.message, 1000)
+        && request.resource.data.message.size() > 0 && request.resource.data.status == 'new'
+        && request.resource.data.keys().hasOnly(['name','email','subject','message','status','createdAt']);
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
