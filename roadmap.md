@@ -1,6 +1,6 @@
 # Roadmap
-- [ ] Finish tutoring site build (fix type errors)
-- [ ] Rename to SS Academy everywhere
-- [ ] Remove SA flags from photos
-- [ ] Less blue: warmer palette
-- [ ] Add Firebase keys (needs user's Firebase web config)
+- [x] Tutoring site build
+- [x] Rename to SS Academy
+- [x] Remove SA flags from photos
+- [x] Warmer, less-blue palette
+- [ ] Add Firebase keys — waiting on user's Firebase web config
