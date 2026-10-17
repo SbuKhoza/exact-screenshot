@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
-import logo from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { site, subjects } from "@/lib/site";
@@ -18,7 +17,7 @@ const nav = [
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="flex min-w-0 items-center gap-2.5">
-      <img src={logo.url} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full bg-card" />
+      <img src="/logo.png" alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full bg-card" />
       <span className={`truncate font-display text-lg font-bold leading-tight ${light ? "text-primary-foreground" : "text-primary"}`}>
         {site.name}
       </span>
