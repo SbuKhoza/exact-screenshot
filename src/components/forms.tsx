@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { grades, OTHER_SUBJECT, subjects } from "@/lib/site";
 import { Logo } from "@/components/site/layout";
 
-export function Field({ label, error, hint, children, optional }: { label: string; error?: string; hint?: string; optional?: boolean; children: ReactNode }) {
+export function Field({ label, error, hint, children, optional }: { label: string; error?: string | undefined; hint?: string; optional?: boolean; children: ReactNode }) {
   const id = useId();
   const child = isValidElement(children)
     ? cloneElement(children as ReactElement<Record<string, unknown>>, { id, "aria-invalid": !!error || undefined, "aria-describedby": error ? `${id}-err` : undefined })
@@ -49,7 +49,7 @@ export function GradeSelect({ value, onChange, id, ...rest }: { value: string; o
   );
 }
 
-export function SubjectPicker({ value, onChange, error }: { value: string[]; onChange: (v: string[]) => void; error?: string }) {
+export function SubjectPicker({ value, onChange, error }: { value: string[]; onChange: (v: string[]) => void; error?: string | undefined }) {
   const all = [...subjects.map((s) => s.name), OTHER_SUBJECT];
   const toggle = (s: string) => onChange(value.includes(s) ? value.filter((x) => x !== s) : [...value, s]);
   return (
@@ -68,7 +68,7 @@ export function SubjectPicker({ value, onChange, error }: { value: string[]; onC
   );
 }
 
-export function Consent({ checked, onChange, error }: { checked: boolean; onChange: (v: boolean) => void; error?: string }) {
+export function Consent({ checked, onChange, error }: { checked: boolean; onChange: (v: boolean) => void; error?: string | undefined }) {
   return (
     <div className="grid gap-1.5">
       <label className="flex items-start gap-3 text-sm text-muted-foreground">

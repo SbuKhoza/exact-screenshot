@@ -9,7 +9,7 @@ import { getParentProfile, saveParentProfile } from "@/lib/services";
 import { issues, parentProfileSchema } from "@/lib/validation";
 
 export const Route = createFileRoute("/parent/profile")({
-  head: () => ({ meta: [{ title: "Your Profile — Sanele Sims Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Your Profile — SS Academy" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="parent" needsProfile={false}><ProfileForm /></RequireAuth>
   ),
@@ -19,7 +19,7 @@ function ProfileForm() {
   const { user, account, refresh } = useAuth();
   const navigate = useNavigate();
   const [v, setV] = useState<{ firstName: string; surname: string; cellphone: string } | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   const editing = account?.profileCompleted;
 

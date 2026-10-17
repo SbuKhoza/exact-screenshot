@@ -8,7 +8,7 @@ import { friendlyError } from "@/lib/firebase";
 import { getLearner, type Learner } from "@/lib/services";
 
 export const Route = createFileRoute("/student/")({
-  head: () => ({ meta: [{ title: "Student Dashboard — Sanele Sims Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Student Dashboard — SS Academy" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="student" needsProfile>
       <DashboardShell role="student"><Dashboard /></DashboardShell>

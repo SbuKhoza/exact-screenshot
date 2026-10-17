@@ -12,7 +12,7 @@ import { issues, password } from "@/lib/validation";
 import { RequireAnyAuth } from "@/components/require-any";
 
 export const Route = createFileRoute("/account")({
-  head: () => ({ meta: [{ title: "Account Settings — Sanele Sims Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Account Settings — SS Academy" }, { name: "robots", content: "noindex" }] }),
   component: () => <RequireAnyAuth><Account /></RequireAnyAuth>,
 });
 
@@ -23,7 +23,7 @@ const schema = z
 function Account() {
   const { user, account } = useAuth();
   const [v, setV] = useState({ current: "", next: "", confirm: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   if (!account) return <Spinner />;
 

@@ -33,7 +33,7 @@ export function LearnerForm({
   onSubmit: (v: LearnerValues) => Promise<void>;
 }) {
   const [v, setV] = useState<LearnerValues>(initial);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   const set = (k: keyof LearnerValues) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: e.target.value });
 
@@ -41,7 +41,7 @@ export function LearnerForm({
     e.preventDefault();
     if (busy) return;
     const r = (mode === "child" ? childSchema : studentDetailsSchema).safeParse(v);
-    const errs = r.success ? {} : issues(r.error);
+    const errs: Errors = r.success ? {} : issues(r.error);
     const extraErr = extraValid?.();
     if (extraErr) errs.consent = extraErr;
     setErrors(errs);

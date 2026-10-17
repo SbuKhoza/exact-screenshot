@@ -11,9 +11,9 @@ import { email, issues } from "@/lib/validation";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — Sanele Sims Academy" },
+      { title: "Login — SS Academy" },
       { name: "description", content: "Log in to your parent or student account." },
-      { property: "og:title", content: "Login — Sanele Sims Academy" },
+      { property: "og:title", content: "Login — SS Academy" },
       { property: "og:description", content: "Log in to your account." },
     ],
   }),
@@ -27,7 +27,7 @@ function Login() {
   useRedirectIfSignedIn(busy);
   const navigate = useNavigate();
   const [v, setV] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

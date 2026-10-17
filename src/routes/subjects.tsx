@@ -5,9 +5,9 @@ import { Subjects, HowItWorks } from "@/components/site/sections";
 export const Route = createFileRoute("/subjects")({
   head: () => ({
     meta: [
-      { title: "Subjects — Sanele Sims Academy" },
+      { title: "Subjects — SS Academy" },
       { name: "description", content: "Mathematics, Maths Literacy, English, Website Development and Computer Animation tutoring." },
-      { property: "og:title", content: "Subjects — Sanele Sims Academy" },
+      { property: "og:title", content: "Subjects — SS Academy" },
       { property: "og:description", content: "Mathematics, Maths Literacy, English, Website Development and Computer Animation tutoring." },
     ],
   }),

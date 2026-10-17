@@ -1,6 +1,6 @@
 // Editable company content. Update these values to change the site everywhere.
 export const site = {
-  name: "Sanele Sims Academy",
+  name: "SS Academy",
   tagline: "Empowering learners, one class at a time.",
   short:
     "Quality tutoring in a safe, supportive and inspiring environment — in the comfort of your child's home.",

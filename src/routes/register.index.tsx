@@ -6,9 +6,9 @@ import { useRedirectIfSignedIn } from "@/components/guard";
 export const Route = createFileRoute("/register/")({
   head: () => ({
     meta: [
-      { title: "Register — Sanele Sims Academy" },
+      { title: "Register — SS Academy" },
       { name: "description", content: "Register as a parent/guardian or as an independent student." },
-      { property: "og:title", content: "Register — Sanele Sims Academy" },
+      { property: "og:title", content: "Register — SS Academy" },
       { property: "og:description", content: "Choose how you'd like to register." },
     ],
   }),
