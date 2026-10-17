@@ -92,7 +92,7 @@ export function SubmitButton({ busy, children, label }: { busy: boolean; childre
   );
 }
 
-export function AuthCard({ title, subtitle, children, footer, step }: { title: string; subtitle?: string; children: ReactNode; footer?: ReactNode; step?: string }) {
+export function AuthCard({ title, subtitle, children, footer, step }: { title: string; subtitle?: string; children: ReactNode; footer?: ReactNode; step?: string | undefined }) {
   return (
     <div className="min-h-screen bg-muted">
       <div className="container-page flex h-16 items-center"><Logo /></div>

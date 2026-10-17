@@ -26,7 +26,7 @@ function Forgot() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const r = emailRule.safeParse(email);
-    if (!r.success) return setError(r.error.issues[0].message);
+    if (!r.success) return setError(r.error.issues[0]?.message ?? "Enter a valid email");
     setError("");
     setBusy(true);
     try {

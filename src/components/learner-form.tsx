@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { useState } from "react";
 import { Field, GradeSelect, SubjectPicker, SubmitButton, TextInput } from "@/components/forms";
 import { childSchema, studentDetailsSchema, issues } from "@/lib/validation";

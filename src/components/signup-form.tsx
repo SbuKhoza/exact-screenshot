@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthCard, Consent, Field, NotConfigured, PasswordInput, SubmitButton, TextInput } from "@/components/forms";

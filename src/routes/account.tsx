@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
