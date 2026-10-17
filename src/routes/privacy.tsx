@@ -5,9 +5,9 @@ import { site } from "@/lib/site";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Sanele Sims Academy" },
-      { name: "description", content: "How Sanele Sims Academy collects and uses personal information, in line with POPIA." },
-      { property: "og:title", content: "Privacy Policy — Sanele Sims Academy" },
+      { title: "Privacy Policy — SS Academy" },
+      { name: "description", content: "How SS Academy collects and uses personal information, in line with POPIA." },
+      { property: "og:title", content: "Privacy Policy — SS Academy" },
       { property: "og:description", content: "How we handle your and your child's information." },
     ],
   }),

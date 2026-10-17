@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ const schema = z
 function Account() {
   const { user, account } = useAuth();
   const [v, setV] = useState({ current: "", next: "", confirm: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   if (!account) return <Spinner />;
 

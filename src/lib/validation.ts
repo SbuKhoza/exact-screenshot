@@ -61,11 +61,13 @@ export const contactSchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(1000),
 });
 
-export function issues(err: z.ZodError): Record<string, string> {
+type ErrKey = "form" | "email" | "password" | "confirm" | "cellphone" | "consent" | "firstName" | "surname" | "dateOfBirth" | "subjects" | "otherSubject" | "grade" | "schoolName" | "name" | "subject" | "message" | "current" | "next";
+export type Errors = Partial<Record<ErrKey, string>>;
+export function issues(err: z.ZodError): Errors {
   const out: Record<string, string> = {};
   for (const i of err.issues) {
     const k = String(i.path[0] ?? "form");
     if (!out[k]) out[k] = i.message;
   }
-  return out;
+  return out as Errors;
 }

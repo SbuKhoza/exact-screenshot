@@ -5,9 +5,9 @@ import { site } from "@/lib/site";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms and Conditions — Sanele Sims Academy" },
-      { name: "description", content: "Terms for using the Sanele Sims Academy website and registering for tutoring." },
-      { property: "og:title", content: "Terms and Conditions — Sanele Sims Academy" },
+      { title: "Terms and Conditions — SS Academy" },
+      { name: "description", content: "Terms for using the SS Academy website and registering for tutoring." },
+      { property: "og:title", content: "Terms and Conditions — SS Academy" },
       { property: "og:description", content: "Website and registration terms." },
     ],
   }),

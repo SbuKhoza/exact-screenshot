@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthCard, Consent, Field, NotConfigured, PasswordInput, SubmitButton, TextInput } from "@/components/forms";
@@ -13,7 +14,7 @@ export function SignupForm({ role }: { role: Role }) {
   const { refresh } = useAuth();
   const navigate = useNavigate();
   const [v, setV] = useState({ email: "", cellphone: "", password: "", confirm: "", consent: false });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
   const set = (k: "email" | "cellphone" | "password" | "confirm") => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: e.target.value });
 
   async function submit(e: React.FormEvent) {

@@ -1,3 +1,4 @@
+import type { Errors } from "@/lib/validation";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
@@ -27,7 +28,7 @@ function Login() {
   useRedirectIfSignedIn(busy);
   const navigate = useNavigate();
   const [v, setV] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errors>({});
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

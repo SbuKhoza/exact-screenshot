@@ -71,6 +71,6 @@ export function StatusBadge({ status }: { status: string }) {
     enrolled: ["Enrolled", "bg-success/20 text-foreground"],
     declined: ["Declined", "bg-destructive/15 text-destructive"],
   };
-  const [label, cls] = map[status] ?? map.pending_review;
+  const [label, cls] = map[status] ?? ["Pending Review", "bg-warning/20 text-foreground"];
   return <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${cls}`}>{label}</span>;
 }
