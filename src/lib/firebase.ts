@@ -38,7 +38,7 @@ export function initFirebase(): Promise<boolean> {
 /** Lazily initialise Firebase. Only call from the browser (effects / handlers). */
 export function fb(): { auth: Auth; db: Firestore } {
   if (!firebaseConfigured()) throw new Error("FIREBASE_NOT_CONFIGURED");
-  if (!app) app = getApps()[0] ?? initializeApp(config);
+  if (!app) app = getApps()[0] ?? initializeApp({ ...config, apiKey: config.apiKey! });
   return { auth: getAuth(app), db: getFirestore(app) };
 }
 
