@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicPage, PageIntro } from "@/components/site/layout";
-import { site } from "@/lib/site";
+import { useSite } from "@/lib/site-content";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function Terms() {
+  const site = useSite();
   return (
     <PublicPage>
       <PageIntro eyebrow="Legal" title="Terms and Conditions" />

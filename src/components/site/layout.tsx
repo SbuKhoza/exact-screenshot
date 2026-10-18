@@ -3,7 +3,8 @@ import { useState, type ReactNode } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { site, subjects } from "@/lib/site";
+import { subjects } from "@/lib/site";
+import { useSite } from "@/lib/site-content";
 import { useAuth, homeFor } from "@/lib/auth";
 
 const nav = [
@@ -15,6 +16,7 @@ const nav = [
 ] as const;
 
 export function Logo({ light = false }: { light?: boolean }) {
+  const site = useSite();
   return (
     <Link to="/" className="flex min-w-0 items-center gap-2.5">
       <img src="/logo.png" alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full bg-card" />
@@ -92,6 +94,7 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const site = useSite();
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container-page grid gap-10 py-14 md:grid-cols-4">

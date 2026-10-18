@@ -6,7 +6,8 @@ import { BookOpen, Box, Calculator, Code2, Sigma, HeartHandshake, TrendingUp, Ho
 import hero from "@/assets/hero.jpg";
 import online from "@/assets/online.jpg";
 import { Button } from "@/components/ui/button";
-import { site, subjects } from "@/lib/site";
+import { subjects } from "@/lib/site";
+import { useSite } from "@/lib/site-content";
 import { contactSchema, issues } from "@/lib/validation";
 import { sendContactMessage } from "@/lib/services";
 import { friendlyError } from "@/lib/firebase";
@@ -53,6 +54,7 @@ export function SectionHead({ eyebrow, title, children }: { eyebrow: string; tit
 }
 
 export function About() {
+  const site = useSite();
   const points = [
     { icon: Sparkles, t: "Personalised learning", d: "Lessons shaped around each learner's pace and needs." },
     { icon: GraduationCap, t: "Academic support", d: "Help with homework, tests and exam preparation." },
@@ -163,6 +165,7 @@ export function WhyUs() {
 }
 
 export function Contact() {
+  const site = useSite();
   const [v, setV] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);

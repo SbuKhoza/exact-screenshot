@@ -1,17 +1,23 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
 import { fb } from "./firebase";
 
 /**
- * Multi-tenant detection.
+ * Multi-tenant detection for the public site.
  *
- * Priority:
- * 1. localhost / 127.0.0.1 → localStorage "dev_tenant_id" (set it once in devtools
- *    or via setDevTenantId()).
- * 2. Firestore `domains` collection: { domain: <hostname>, tenantId: <id> }.
- * 3. Firestore `subdomains` collection: doc id = first hostname label.
+ * The CMS (cmshandybusiness) writes these Firestore documents:
+ *   tenants/{tenantId}         -> { businessName, isActive, suspensionReason, ... }
+ *   domains/{customDomain}     -> { domain, tenantId }
+ *   subdomains/{subdomain}     -> { subdomain, tenantId }
  *
- * The resolved tenant ID is cached in memory and sessionStorage so we only
- * hit Firestore once per tab.
+ * Resolution order:
+ * 1. localhost / 127.0.0.1  -> localStorage "dev_tenant_id" (see setDevTenantId()).
+ * 2. domains/{hostname}     (also tries the www / non-www variant).
+ * 3. domains where domain == hostname (fallback for mappings saved with a different doc id).
+ * 4. subdomains/{first label of hostname}.
+ * 5. VITE_FALLBACK_TENANT_ID (optional) - handy for preview URLs that have no mapping.
+ *
+ * Only the tenant ID is cached (sessionStorage). The tenant's active/suspended status is
+ * never cached, so a suspension takes effect immediately.
  */
 
 const CACHE_KEY = "tenant_id";
@@ -25,40 +31,87 @@ export function setDevTenantId(tenantId: string) {
   cached = null;
 }
 
+export function clearCachedTenantId() {
+  cached = null;
+  try {
+    sessionStorage.removeItem(CACHE_KEY);
+  } catch {
+    /* sessionStorage unavailable */
+  }
+}
+
 export function getCachedTenantId(): string | null {
-  return cached ?? sessionStorage.getItem(CACHE_KEY);
+  if (cached) return cached;
+  try {
+    return sessionStorage.getItem(CACHE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function remember(tenantId: string): string {
+  cached = tenantId;
+  try {
+    sessionStorage.setItem(CACHE_KEY, tenantId);
+  } catch {
+    /* sessionStorage unavailable */
+  }
+  return tenantId;
+}
+
+function hostnameVariants(hostname: string): string[] {
+  const host = hostname.trim().toLowerCase();
+  const bare = host.startsWith("www.") ? host.slice(4) : host;
+  return Array.from(new Set([host, bare, `www.${bare}`]));
 }
 
 export async function detectTenantId(): Promise<string> {
-  if (cached) return cached;
-  const fromSession = sessionStorage.getItem(CACHE_KEY);
-  if (fromSession) return (cached = fromSession);
+  const fromCache = getCachedTenantId();
+  if (fromCache) return (cached = fromCache);
 
-  const hostname = window.location.hostname;
+  const hostname = window.location.hostname.toLowerCase();
 
-  // Development fallback
+  // 1. Local development
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     const devTenantId = localStorage.getItem(DEV_KEY);
     if (devTenantId) return remember(devTenantId);
+    const envTenant = import.meta.env["VITE_FALLBACK_TENANT_ID"] as string | undefined;
+    if (envTenant) return remember(envTenant);
     throw new Error(
-      "No tenant ID for local development. Run setDevTenantId('<tenantId>') in the console once.",
+      "No tenant ID for local development. Run setDevTenantId('<tenantId>') in the console once, or set VITE_FALLBACK_TENANT_ID.",
     );
   }
 
   const { db } = fb();
+  const variants = hostnameVariants(hostname);
 
-  // Custom domain mapping: domains collection, field `domain` == hostname
-  try {
-    const snap = await getDocs(query(collection(db, "domains"), where("domain", "==", hostname)));
-    if (!snap.empty) {
-      const tenantId = snap.docs[0]?.data()["tenantId"] as string | undefined;
-      if (tenantId) return remember(tenantId);
+  // 2. Custom domain: domains/{hostname}
+  for (const host of variants) {
+    try {
+      const snap = await getDoc(doc(db, "domains", host));
+      if (snap.exists()) {
+        const tenantId = snap.data()["tenantId"] as string | undefined;
+        if (tenantId) return remember(tenantId);
+      }
+    } catch (e) {
+      console.error("Error checking domain mapping:", e);
     }
-  } catch (e) {
-    console.error("Error checking domain mapping:", e);
   }
 
-  // Subdomain mapping: subdomains collection, doc id = first label
+  // 3. Custom domain: query by field (in case the doc id differs from the domain)
+  for (const host of variants) {
+    try {
+      const snap = await getDocs(
+        query(collection(db, "domains"), where("domain", "==", host), limit(1)),
+      );
+      const tenantId = snap.docs[0]?.data()["tenantId"] as string | undefined;
+      if (tenantId) return remember(tenantId);
+    } catch (e) {
+      console.error("Error querying domain mapping:", e);
+    }
+  }
+
+  // 4. Subdomain: subdomains/{first label}
   const subdomain = hostname.split(".")[0];
   if (subdomain && subdomain !== hostname) {
     try {
@@ -72,22 +125,32 @@ export async function detectTenantId(): Promise<string> {
     }
   }
 
-  throw new Error(`Unable to detect tenant from domain: ${hostname}`);
+  // 5. Optional fallback for unmapped preview hosts
+  const fallback = import.meta.env["VITE_FALLBACK_TENANT_ID"] as string | undefined;
+  if (fallback) return remember(fallback);
+
+  throw new TenantNotFoundError(hostname);
 }
 
-function remember(tenantId: string): string {
-  cached = tenantId;
-  sessionStorage.setItem(CACHE_KEY, tenantId);
-  return tenantId;
+export class TenantNotFoundError extends Error {
+  constructor(public readonly hostname: string) {
+    super(`Unable to detect tenant from domain: ${hostname}`);
+    this.name = "TenantNotFoundError";
+  }
 }
 
-export type Tenant = { id: string; businessName?: string; isActive?: boolean; [k: string]: unknown };
+export type Tenant = {
+  id: string;
+  businessName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  isActive?: boolean;
+  suspensionReason?: string;
+  [k: string]: unknown;
+};
 
-/** Validates that a tenant exists and is active. Returns its data. */
-export async function validateTenant(tenantId: string): Promise<Tenant> {
-  const snap = await getDoc(doc(fb().db, "tenants", tenantId));
-  if (!snap.exists()) throw new Error(`Tenant ${tenantId} does not exist`);
-  const data = snap.data();
-  if (data["isActive"] === false) throw new Error(`Tenant ${tenantId} is inactive`);
-  return { id: snap.id, ...data };
+/** A tenant is active unless the CMS explicitly set isActive to false. */
+export function isTenantActive(tenant: Pick<Tenant, "isActive"> | null | undefined): boolean {
+  return tenant?.isActive !== false;
 }
