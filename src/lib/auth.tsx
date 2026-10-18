@@ -18,11 +18,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [account, setAccount] = useState<Account | null>(null);
 
   useEffect(() => {
-    if (!firebaseConfigured) {
-      setLoading(false);
-      return;
-    }
-    return onAuthStateChanged(fb().auth, async (u) => {
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    void initFirebase().then((ready) => {
+      if (cancelled) return;
+      if (!ready) {
+        setLoading(false);
+        return;
+      }
+      unsub = onAuthStateChanged(fb().auth, async (u) => {
       setLoading(true);
       setUser(u);
       try {
