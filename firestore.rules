@@ -57,6 +57,20 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Multi-tenant domain detection (read-only to everyone; managed from the admin site)
+    match /domains/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /subdomains/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /tenants/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /contactMessages/{id} {
       allow create: if str(request.resource.data.name, 100) && request.resource.data.name.size() > 0
         && str(request.resource.data.email, 255) && request.resource.data.email.matches('.+@.+\\..+')
