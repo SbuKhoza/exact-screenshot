@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { fb, firebaseConfigured } from "./firebase";
+import { fb, firebaseConfigured, initFirebase } from "./firebase";
 import { getAccount, type Account } from "./services";
 
 type AuthState = {
@@ -18,11 +18,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [account, setAccount] = useState<Account | null>(null);
 
   useEffect(() => {
-    if (!firebaseConfigured) {
-      setLoading(false);
-      return;
-    }
-    return onAuthStateChanged(fb().auth, async (u) => {
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    void initFirebase().then((ready) => {
+      if (cancelled) return;
+      if (!ready) {
+        setLoading(false);
+        return;
+      }
+      unsub = onAuthStateChanged(fb().auth, async (u) => {
       setLoading(true);
       setUser(u);
       try {
@@ -31,11 +35,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccount(null);
       }
       setLoading(false);
+      });
     });
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
   }, []);
 
   const refresh = useCallback(async () => {
-    const u = firebaseConfigured ? fb().auth.currentUser : null;
+    const u = firebaseConfigured() ? fb().auth.currentUser : null;
     const a = u ? await getAccount(u.uid) : null;
     setAccount(a);
     return a;

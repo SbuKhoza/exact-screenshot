@@ -49,7 +49,7 @@ function Login() {
 
   return (
     <AuthCard title="Welcome back" subtitle="Parents, guardians and students log in here." footer={<>New here? <Link to="/register" className="font-semibold text-primary underline">Create an account</Link></>}>
-      {!firebaseConfigured && <div className="mb-5"><NotConfigured /></div>}
+      {!firebaseConfigured() && <div className="mb-5"><NotConfigured /></div>}
       <form onSubmit={submit} noValidate className="grid gap-4">
         <Field label="Email address" error={errors.email}><TextInput type="email" autoComplete="email" value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} /></Field>
         <Field label="Password" error={errors.password}><PasswordInput autoComplete="current-password" value={v.password} onChange={(e) => setV({ ...v, password: e.target.value })} /></Field>
