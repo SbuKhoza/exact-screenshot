@@ -51,7 +51,7 @@ export async function detectTenantId(): Promise<string> {
   try {
     const snap = await getDocs(query(collection(db, "domains"), where("domain", "==", hostname)));
     if (!snap.empty) {
-      const tenantId = snap.docs[0].data().tenantId as string;
+      const tenantId = snap.docs[0]?.data()["tenantId"] as string | undefined;
       if (tenantId) return remember(tenantId);
     }
   } catch (e) {
@@ -64,7 +64,7 @@ export async function detectTenantId(): Promise<string> {
     try {
       const subDoc = await getDoc(doc(db, "subdomains", subdomain));
       if (subDoc.exists()) {
-        const tenantId = subDoc.data().tenantId as string;
+        const tenantId = subDoc.data()["tenantId"] as string | undefined;
         if (tenantId) return remember(tenantId);
       }
     } catch (e) {
@@ -88,6 +88,6 @@ export async function validateTenant(tenantId: string): Promise<Tenant> {
   const snap = await getDoc(doc(fb().db, "tenants", tenantId));
   if (!snap.exists()) throw new Error(`Tenant ${tenantId} does not exist`);
   const data = snap.data();
-  if (data.isActive === false) throw new Error(`Tenant ${tenantId} is inactive`);
+  if (data["isActive"] === false) throw new Error(`Tenant ${tenantId} is inactive`);
   return { id: snap.id, ...data };
 }
