@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
+import { initAnalytics, trackPageView } from "@/lib/analytics";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -118,6 +119,15 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    void initAnalytics();
+    const unsub = router.subscribe("onResolved", ({ toLocation }) => {
+      trackPageView(toLocation.pathname);
+    });
+    return unsub;
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
