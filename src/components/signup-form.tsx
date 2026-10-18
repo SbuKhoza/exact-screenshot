@@ -41,7 +41,7 @@ export function SignupForm({ role }: { role: Role }) {
       subtitle={role === "parent" ? "You'll use this email and password to log in and manage your children." : "You'll log in with this email and password."}
       footer={<>Already registered? <Link to="/login" className="font-semibold text-primary underline">Log in</Link></>}
     >
-      {!firebaseConfigured && <div className="mb-5"><NotConfigured /></div>}
+      {!firebaseConfigured() && <div className="mb-5"><NotConfigured /></div>}
       <form onSubmit={submit} noValidate className="grid gap-4">
         <Field label="Email address" error={errors.email}><TextInput type="email" autoComplete="email" value={v.email} onChange={set("email")} /></Field>
         {role === "parent" && (

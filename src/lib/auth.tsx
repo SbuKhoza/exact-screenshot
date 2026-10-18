@@ -35,11 +35,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccount(null);
       }
       setLoading(false);
+      });
     });
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
   }, []);
 
   const refresh = useCallback(async () => {
-    const u = firebaseConfigured ? fb().auth.currentUser : null;
+    const u = firebaseConfigured() ? fb().auth.currentUser : null;
     const a = u ? await getAccount(u.uid) : null;
     setAccount(a);
     return a;
