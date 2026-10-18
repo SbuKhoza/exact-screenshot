@@ -54,7 +54,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           },
           (err) => {
             if (cancelled) return;
-            setState({ status: "error", tenantId, tenant: null, error: err.message });
+            console.error("[tenant] Could not read tenants/" + tenantId, err);
+            setState({ status: "error", tenantId, tenant: null, error: `${err.code}: ${err.message}` });
           },
         );
       } catch (e) {
@@ -62,6 +63,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         if (e instanceof TenantNotFoundError) {
           setState({ status: "not_found", tenantId: null, tenant: null, error: e.message });
         } else {
+          console.error("[tenant] Tenant lookup failed", e);
           setState({ status: "error", tenantId: null, tenant: null, error: (e as Error).message });
         }
       }

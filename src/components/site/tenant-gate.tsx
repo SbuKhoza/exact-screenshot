@@ -37,7 +37,8 @@ export function TenantGate({ children }: { children: ReactNode }) {
   if (status === "not_found") {
     return (
       <Screen title="Site not found">
-        This address is not connected to a website. If you own it, check that the domain is added in the CMS.
+        <p>This address is not connected to a website. If you own it, check that the domain is added in the CMS.</p>
+        {error ? <p className="mt-3 break-words rounded-md bg-muted/50 px-3 py-2 text-xs">{error}</p> : null}
       </Screen>
     );
   }
@@ -46,7 +47,7 @@ export function TenantGate({ children }: { children: ReactNode }) {
     return (
       <Screen title="We can't load this site right now">
         <p>Please check your connection and try again.</p>
-        {import.meta.env.DEV && error ? <p className="mt-3 break-words text-xs">{error}</p> : null}
+        {error ? <p className="mt-3 break-words rounded-md bg-muted/50 px-3 py-2 text-xs">{error}</p> : null}
         <button
           onClick={() => window.location.reload()}
           className="mt-5 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"

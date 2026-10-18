@@ -10,8 +10,8 @@ import { fb } from "./firebase";
  *   subdomains/{subdomain}     -> { subdomain, tenantId }
  *
  * Resolution order:
- * 1. localhost / 127.0.0.1  -> localStorage "dev_tenant_id" (see setDevTenantId()).
- * 2. domains/{hostname}     (also tries the www / non-www variant).
+ * 1. localhost only: localStorage "dev_tenant_id" / VITE_FALLBACK_TENANT_ID, if set (optional override).
+ * 2. domains/{host}         (host includes the port, e.g. "localhost:8080"; also tries www / non-www).
  * 3. domains where domain == hostname (fallback for mappings saved with a different doc id).
  * 4. subdomains/{first label of hostname}.
  * 5. VITE_FALLBACK_TENANT_ID (optional) - handy for preview URLs that have no mapping.
@@ -59,10 +59,14 @@ function remember(tenantId: string): string {
   return tenantId;
 }
 
-function hostnameVariants(hostname: string): string[] {
-  const host = hostname.trim().toLowerCase();
-  const bare = host.startsWith("www.") ? host.slice(4) : host;
-  return Array.from(new Set([host, bare, `www.${bare}`]));
+function hostnameVariants(hostname: string, host: string): string[] {
+  const out: string[] = [];
+  for (const h of [host, hostname]) {
+    const lower = h.trim().toLowerCase();
+    const bare = lower.startsWith("www.") ? lower.slice(4) : lower;
+    out.push(lower, bare, `www.${bare}`);
+  }
+  return Array.from(new Set(out));
 }
 
 export async function detectTenantId(): Promise<string> {
@@ -70,25 +74,26 @@ export async function detectTenantId(): Promise<string> {
   if (fromCache) return (cached = fromCache);
 
   const hostname = window.location.hostname.toLowerCase();
+  // host includes the port, e.g. "localhost:8080" (the CMS stores it that way).
+  const host = window.location.host.toLowerCase();
+  const port = window.location.port;
+  const isLocal = hostname === "localhost" || hostname === "127.0.0.1";
 
-  // 1. Local development
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  // 1. Explicit overrides for local development (optional)
+  if (isLocal) {
     const devTenantId = localStorage.getItem(DEV_KEY);
     if (devTenantId) return remember(devTenantId);
     const envTenant = import.meta.env["VITE_FALLBACK_TENANT_ID"] as string | undefined;
     if (envTenant) return remember(envTenant);
-    throw new Error(
-      "No tenant ID for local development. Run setDevTenantId('<tenantId>') in the console once, or set VITE_FALLBACK_TENANT_ID.",
-    );
   }
 
   const { db } = fb();
-  const variants = hostnameVariants(hostname);
+  const variants = hostnameVariants(hostname, host);
 
-  // 2. Custom domain: domains/{hostname}
-  for (const host of variants) {
+  // 2. Custom domain: domains/{host} (host may include the port)
+  for (const candidate of variants) {
     try {
-      const snap = await getDoc(doc(db, "domains", host));
+      const snap = await getDoc(doc(db, "domains", candidate));
       if (snap.exists()) {
         const tenantId = snap.data()["tenantId"] as string | undefined;
         if (tenantId) return remember(tenantId);
@@ -99,10 +104,10 @@ export async function detectTenantId(): Promise<string> {
   }
 
   // 3. Custom domain: query by field (in case the doc id differs from the domain)
-  for (const host of variants) {
+  for (const candidate of variants) {
     try {
       const snap = await getDocs(
-        query(collection(db, "domains"), where("domain", "==", host), limit(1)),
+        query(collection(db, "domains"), where("domain", "==", candidate), limit(1)),
       );
       const tenantId = snap.docs[0]?.data()["tenantId"] as string | undefined;
       if (tenantId) return remember(tenantId);
@@ -111,11 +116,15 @@ export async function detectTenantId(): Promise<string> {
     }
   }
 
-  // 4. Subdomain: subdomains/{first label}
-  const subdomain = hostname.split(".")[0];
-  if (subdomain && subdomain !== hostname) {
+  // 4. Subdomain: subdomains/{first label}. On localhost the CMS saves "localhost-8080".
+  const subdomainCandidates = isLocal
+    ? [port ? `${hostname}-${port}` : hostname]
+    : hostname.split(".").length > 1
+      ? [hostname.split(".")[0] as string]
+      : [];
+  for (const sub of subdomainCandidates) {
     try {
-      const subDoc = await getDoc(doc(db, "subdomains", subdomain));
+      const subDoc = await getDoc(doc(db, "subdomains", sub));
       if (subDoc.exists()) {
         const tenantId = subDoc.data()["tenantId"] as string | undefined;
         if (tenantId) return remember(tenantId);
@@ -129,12 +138,15 @@ export async function detectTenantId(): Promise<string> {
   const fallback = import.meta.env["VITE_FALLBACK_TENANT_ID"] as string | undefined;
   if (fallback) return remember(fallback);
 
-  throw new TenantNotFoundError(hostname);
+  throw new TenantNotFoundError(host);
 }
 
 export class TenantNotFoundError extends Error {
   constructor(public readonly hostname: string) {
-    super(`Unable to detect tenant from domain: ${hostname}`);
+    super(
+      `No tenant is mapped to "${hostname}". In the CMS, set this tenant's Custom Domain to exactly "${hostname}"` +
+        ` (or run setDevTenantId('<tenantId>') on localhost).`,
+    );
     this.name = "TenantNotFoundError";
   }
 }

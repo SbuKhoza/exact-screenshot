@@ -3,14 +3,18 @@ import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getFirebaseApiKey } from "./firebase.functions";
 
-// Firebase web config is publishable (not a secret). Values come from VITE_FIREBASE_* env vars.
+// Firebase web config is publishable (not a secret): access is controlled by Firestore rules and
+// by the authorized domains / HTTP referrer restrictions in the Firebase and Google Cloud consoles.
+// Values come from VITE_FIREBASE_* env vars when present; otherwise they fall back to the shared
+// project used by the CMS (cmshandybusiness) and the tenant sites (handybusiness), so the site
+// still works when the host has no env vars configured.
 const config = {
-  apiKey: import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined,
-  authDomain: import.meta.env["VITE_FIREBASE_AUTH_DOMAIN"],
-  projectId: import.meta.env["VITE_FIREBASE_PROJECT_ID"],
-  storageBucket: import.meta.env["VITE_FIREBASE_STORAGE_BUCKET"],
-  messagingSenderId: import.meta.env["VITE_FIREBASE_MESSAGING_SENDER_ID"],
-  appId: import.meta.env["VITE_FIREBASE_APP_ID"],
+  apiKey: (import.meta.env["VITE_FIREBASE_API_KEY"] as string | undefined) || "AIzaSyAvrTy7m6OYqTkFD2ezu-gHXSCmrRNWqoI",
+  authDomain: (import.meta.env["VITE_FIREBASE_AUTH_DOMAIN"] as string | undefined) || "business001-d42d8.firebaseapp.com",
+  projectId: (import.meta.env["VITE_FIREBASE_PROJECT_ID"] as string | undefined) || "business001-d42d8",
+  storageBucket: (import.meta.env["VITE_FIREBASE_STORAGE_BUCKET"] as string | undefined) || "business001-d42d8.firebasestorage.app",
+  messagingSenderId: (import.meta.env["VITE_FIREBASE_MESSAGING_SENDER_ID"] as string | undefined) || "801149423209",
+  appId: (import.meta.env["VITE_FIREBASE_APP_ID"] as string | undefined) || "1:801149423209:web:332a93c004c1585be55cf8",
 };
 
 export function firebaseConfigured(): boolean {
