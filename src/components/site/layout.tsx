@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { subjects } from "@/lib/site";
 import { useSite } from "@/lib/site-content";
 import { useAuth, homeFor } from "@/lib/auth";
+import { useAdmin } from "@/lib/admin-context";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -30,6 +31,7 @@ export function Logo({ light = false }: { light?: boolean }) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { account } = useAuth();
+  const { allowed: admin } = useAdmin();
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
       <div className="container-page grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
@@ -42,7 +44,7 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
-          {account ? (
+          {admin ? <Button asChild size="sm"><Link to="/admin">Admin dashboard</Link></Button> : account ? (
             <Button asChild size="sm" className="hidden rounded-full sm:inline-flex">
               <Link to={homeFor(account)}>My dashboard</Link>
             </Button>
@@ -76,7 +78,7 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="mt-2 grid gap-2">
-              {account ? (
+              {admin ? <Button asChild><Link to="/admin">Admin dashboard</Link></Button> : account ? (
                 <Button asChild><Link to={homeFor(account)}>My dashboard</Link></Button>
               ) : (
                 <>
@@ -105,6 +107,7 @@ export function SiteFooter() {
         <FooterCol title="Quick links">
           {nav.map((n) => <Link key={n.to} to={n.to} className="hover:underline">{n.label}</Link>)}
           <Link to="/login" className="hover:underline">Login</Link>
+          <Link to="/admin/login" className="hover:underline">Admin sign in</Link>
         </FooterCol>
         <FooterCol title="Subjects">
           {subjects.map((s) => <span key={s.id}>{s.name}</span>)}

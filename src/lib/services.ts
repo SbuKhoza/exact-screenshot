@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { fb } from "./firebase";
 import { normalizeCell } from "./validation";
+import { detectTenantId } from "./tenant";
 
 export type Role = "parent" | "student";
 export type Account = { uid: string; email: string; role: Role; profileCompleted: boolean };
@@ -45,11 +46,13 @@ export type Learner = {
 export type ParentProfile = { firstName: string; surname: string; cellphoneNumber: string; email: string };
 
 export async function createAccount(role: Role, email: string, password: string, cellphone?: string) {
+  const tenantId = await detectTenantId();
   const { auth, db } = fb();
   const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
   const batch = writeBatch(db);
   batch.set(doc(db, "users", cred.user.uid), {
     uid: cred.user.uid,
+    tenantId,
     email: cred.user.email,
     role,
     profileCompleted: false,
@@ -135,8 +138,10 @@ const learnerFields = (v: LearnerInput) => ({
 });
 
 export async function addChild(parentUid: string, v: LearnerInput) {
+  const tenantId = await detectTenantId();
   const ref = await addDoc(collection(fb().db, "students"), {
     ...learnerFields(v),
+    tenantId,
     accountType: "parent_registered",
     parentUid,
     uid: null,
@@ -167,6 +172,7 @@ export async function getLearner(id: string): Promise<Learner | null> {
 
 /** Independent student: profile doc id = their auth UID. */
 export async function saveStudentDetails(uid: string, email: string, v: LearnerInput) {
+  const tenantId = await detectTenantId();
   const { db } = fb();
   const ref = doc(db, "students", uid);
   const existing = await getDoc(ref);
@@ -176,6 +182,7 @@ export async function saveStudentDetails(uid: string, email: string, v: LearnerI
   } else {
     batch.set(ref, {
       ...learnerFields(v),
+      tenantId,
       accountType: "independent",
       parentUid: null,
       uid,
@@ -190,8 +197,10 @@ export async function saveStudentDetails(uid: string, email: string, v: LearnerI
 }
 
 export async function sendContactMessage(v: { name: string; email: string; subject: string; message: string }) {
+  const tenantId = await detectTenantId();
   await addDoc(collection(fb().db, "contactMessages"), {
     name: v.name.trim(),
+    tenantId,
     email: v.email.trim(),
     subject: v.subject.trim(),
     message: v.message.trim(),
