@@ -1,5 +1,4 @@
 import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
-import { sendEmailVerification } from "firebase/auth";
 import { fb } from "./firebase";
 import type { Learner } from "./services";
 import { registrationStatuses, enquiryStatuses } from "./admin-access";
@@ -31,8 +30,4 @@ export async function setRegistrationStatus(id: string, status: string) {
 export async function setEnquiryStatus(id: string, status: string) {
   if (!enquiryStatuses.some(s => s === status)) throw new Error("Invalid status");
   await updateDoc(doc(fb().db, "contactMessages", id), { status });
-}
-export async function verifyAdminEmail() {
-  const user = fb().auth.currentUser;
-  if (user) await sendEmailVerification(user, { url: window.location.origin + "/admin/login" });
 }

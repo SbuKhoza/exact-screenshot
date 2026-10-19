@@ -2,20 +2,26 @@ import { describe, expect, it } from "vitest";
 import { canAdminTenant } from "@/lib/admin-access";
 
 describe("Tenant admin access", () => {
-  const tenant = { email: "assigned@example.com", isActive: true };
-  it("allows the verified email assigned by the superadmin", () => {
-    expect(canAdminTenant({ email: "ASSIGNED@example.com", emailVerified: true }, tenant)).toBe(true);
+  const tenantId = "tenant-uid-1";
+  const tenant = { isActive: true };
+  it("allows the account the superadmin created for this tenant, without email verification", () => {
+    expect(canAdminTenant({ uid: tenantId }, tenantId, tenant)).toBe(true);
   });
-  it("denies an email not linked to this tenant", () => {
-    expect(canAdminTenant({ email: "other@example.com", emailVerified: true }, tenant)).toBe(false);
+  it("allows tenants that have no isActive flag", () => {
+    expect(canAdminTenant({ uid: tenantId }, tenantId, {})).toBe(true);
   });
-  it("denies unverified email ownership", () => {
-    expect(canAdminTenant({ email: tenant.email, emailVerified: false }, tenant)).toBe(false);
+  it("denies any other account, such as a parent or student", () => {
+    expect(canAdminTenant({ uid: "someone-else" }, tenantId, tenant)).toBe(false);
+  });
+  it("denies a different tenant's administrator", () => {
+    expect(canAdminTenant({ uid: "tenant-uid-2" }, tenantId, tenant)).toBe(false);
   });
   it("denies suspended tenants", () => {
-    expect(canAdminTenant({ email: tenant.email, emailVerified: true }, { ...tenant, isActive: false })).toBe(false);
+    expect(canAdminTenant({ uid: tenantId }, tenantId, { isActive: false })).toBe(false);
   });
-  it("denies missing assignments", () => {
-    expect(canAdminTenant({ email: tenant.email, emailVerified: true }, {})).toBe(false);
+  it("denies signed-out visitors and unresolved tenants", () => {
+    expect(canAdminTenant(null, tenantId, tenant)).toBe(false);
+    expect(canAdminTenant({ uid: tenantId }, null, tenant)).toBe(false);
+    expect(canAdminTenant({ uid: tenantId }, tenantId, null)).toBe(false);
   });
 });

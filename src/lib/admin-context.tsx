@@ -9,15 +9,14 @@ const Ctx = createContext({ loading: true, allowed: false });
 export function AdminProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { tenantId, tenant } = useTenant();
-  const eligible = canAdminTenant(user, tenant);
+  const eligible = canAdminTenant(user, tenantId, tenant);
   const access = useQuery({
-    queryKey: ["admin-access", tenantId, user?.uid, user?.emailVerified, tenant?.email, tenant?.isActive],
+    queryKey: ["admin-access", tenantId, user?.uid, tenant?.isActive],
     enabled: !loading && !!tenantId && eligible,
     retry: false,
     queryFn: async () => {
       if (!user || !tenantId) return false;
-      await user.reload();
-      if (!canAdminTenant(user, tenant)) return false;
+      if (!canAdminTenant(user, tenantId, tenant)) return false;
       // A server-enforced read confirms access even before the first profile is saved.
       await getAdminProfile(tenantId, user.uid);
       return true;
