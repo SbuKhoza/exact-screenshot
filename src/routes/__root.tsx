@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
+import { AdminProvider } from "@/lib/admin-context";
 import { TenantProvider } from "@/lib/tenant-context";
 import { TenantGate } from "@/components/site/tenant-gate";
 import { initAnalytics, trackPageView } from "@/lib/analytics";
@@ -137,8 +138,10 @@ function RootComponent() {
       <TenantProvider>
         <TenantGate>
           <AuthProvider>
+            <AdminProvider>
             <Outlet />
             <Toaster richColors position="top-center" />
+            </AdminProvider>
           </AuthProvider>
         </TenantGate>
       </TenantProvider>

@@ -3,6 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function activeTenant(id) { return id is string && get(/databases/$(database)/documents/tenants/$(id)).data.isActive != false; }
+    function isTenantAdmin(id) {
+      return signedIn() && request.auth.token.email_verified == true && id is string
+        && activeTenant(id)
+        && request.auth.token.email.lower() == get(/databases/$(database)/documents/tenants/$(id)).data.email.lower();
+    }
     function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
     function isParent() { return signedIn() && userDoc().role == 'parent'; }
     function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
@@ -36,20 +42,24 @@ service cloud.firestore {
     }
 
     match /students/{id} {
-      allow read: if isAdmin() || (signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.uid == request.auth.uid));
+      allow read: if isTenantAdmin(resource.data.tenantId) || (signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.uid == request.auth.uid));
       // parent registering a child
       allow create: if isParent() && request.resource.data.parentUid == request.auth.uid
+          && activeTenant(request.resource.data.tenantId) && request.resource.data.tenantId == userDoc().tenantId
           && request.resource.data.accountType == 'parent_registered' && request.resource.data.uid == null
           && request.resource.data.registrationStatus == 'pending_review' && learnerOk(request.resource.data)
         // independent student creating own record (doc id = uid)
         || (signedIn() && id == request.auth.uid && userDoc().role == 'student'
+          && activeTenant(request.resource.data.tenantId) && request.resource.data.tenantId == userDoc().tenantId
           && request.resource.data.uid == request.auth.uid && request.resource.data.parentUid == null
           && request.resource.data.accountType == 'independent'
           && request.resource.data.registrationStatus == 'pending_review' && learnerOk(request.resource.data));
-      allow update: if isAdmin() || (signedIn()
+      allow update: if (isTenantAdmin(resource.data.tenantId)
+        && onlyChanges(['registrationStatus', 'updatedAt'])
+        && request.resource.data.registrationStatus in ['pending_review', 'contacted', 'enrolled', 'declined']) || (signedIn()
         && (resource.data.parentUid == request.auth.uid || resource.data.uid == request.auth.uid)
         && onlyChanges(learnerKeys()) && learnerOk(request.resource.data));
-      allow delete: if isAdmin();
+      allow delete: if false;
     }
 
     match /subjects/{id} {
@@ -69,15 +79,27 @@ service cloud.firestore {
     match /tenants/{id} {
       allow read: if true;
       allow write: if false;
+      match /adminProfiles/{uid} {
+        allow read: if signedIn() && request.auth.uid == uid && isTenantAdmin(id);
+        allow create, update: if signedIn() && request.auth.uid == uid && isTenantAdmin(id)
+          && request.resource.data.keys().hasOnly(['displayName', 'cellphoneNumber', 'updatedAt'])
+          && str(request.resource.data.displayName, 60) && request.resource.data.displayName.size() > 0
+          && str(request.resource.data.cellphoneNumber, 20);
+        allow delete: if false;
+      }
     }
 
     match /contactMessages/{id} {
       allow create: if str(request.resource.data.name, 100) && request.resource.data.name.size() > 0
+        && activeTenant(request.resource.data.tenantId)
         && str(request.resource.data.email, 255) && request.resource.data.email.matches('.+@.+\\..+')
         && str(request.resource.data.subject, 120) && str(request.resource.data.message, 1000)
         && request.resource.data.message.size() > 0 && request.resource.data.status == 'new'
-        && request.resource.data.keys().hasOnly(['name','email','subject','message','status','createdAt']);
-      allow read, update, delete: if isAdmin();
+        && request.resource.data.keys().hasOnly(['tenantId','name','email','subject','message','status','createdAt']);
+      allow read: if isTenantAdmin(resource.data.tenantId);
+      allow update: if isTenantAdmin(resource.data.tenantId) && onlyChanges(['status'])
+        && request.resource.data.status in ['new', 'read', 'resolved'];
+      allow delete: if false;
     }
   }
 }
