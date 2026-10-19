@@ -25,7 +25,7 @@ import { normalizeCell } from "./validation";
 import { detectTenantId } from "./tenant";
 
 export type Role = "parent" | "student";
-export type Account = { uid: string; email: string; role: Role; profileCompleted: boolean };
+export type Account = { uid: string; email: string; role: Role; profileCompleted: boolean; tenantId?: string };
 export type Learner = {
   id: string;
   accountType: "parent_registered" | "independent";
@@ -91,6 +91,27 @@ export async function changePassword(current: string, next: string) {
 export async function getAccount(uid: string): Promise<Account | null> {
   const snap = await getDoc(doc(fb().db, "users", uid));
   return snap.exists() ? (snap.data() as Account) : null;
+}
+
+/**
+ * Links an account (and its learner records) created before tenant support to the tenant of the site
+ * it signs in on. Runs once per account; accounts that already have a tenantId are returned unchanged.
+ */
+export async function linkAccountToTenant(account: Account): Promise<Account> {
+  if (account.tenantId) return account;
+  const tenantId = await detectTenantId();
+  const { db } = fb();
+  const records =
+    account.role === "student"
+      ? [await getDoc(doc(db, "students", account.uid))].filter((s) => s.exists())
+      : (await getDocs(query(collection(db, "students"), where("parentUid", "==", account.uid)))).docs;
+  const batch = writeBatch(db);
+  batch.update(doc(db, "users", account.uid), { tenantId, updatedAt: serverTimestamp() });
+  for (const rec of records) {
+    if (!rec.data()?.["tenantId"]) batch.update(rec.ref, { tenantId, updatedAt: serverTimestamp() });
+  }
+  await batch.commit();
+  return { ...account, tenantId };
 }
 
 export async function getParentProfile(uid: string): Promise<ParentProfile | null> {

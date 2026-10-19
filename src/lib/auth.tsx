@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { fb, firebaseConfigured, initFirebase } from "./firebase";
-import { getAccount, type Account } from "./services";
+import { getAccount, linkAccountToTenant, type Account } from "./services";
 
 type AuthState = {
   loading: boolean;
@@ -30,7 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setUser(u);
       try {
-        setAccount(u ? await getAccount(u.uid) : null);
+        let acct = u ? await getAccount(u.uid) : null;
+        if (acct && !acct.tenantId) {
+          // Older account created before tenant support: link it to this site's tenant automatically.
+          try {
+            acct = await linkAccountToTenant(acct);
+          } catch (e) {
+            console.warn("[tenant] Could not link account to tenant", e);
+          }
+        }
+        setAccount(acct);
       } catch {
         setAccount(null);
       }
