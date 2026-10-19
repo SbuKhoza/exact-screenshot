@@ -19,6 +19,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SubjectsRouteImport } from './routes/subjects'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as ParentIndexRouteImport } from './routes/parent.index'
 import { Route as ParentProfileRouteImport } from './routes/parent.profile'
 import { Route as RegisterIndexRouteImport } from './routes/register.index'
@@ -79,6 +82,21 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/admin/profile',
+  path: '/admin/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParentIndexRoute = ParentIndexRouteImport.update({
   id: '/parent/',
   path: '/parent/',
@@ -136,10 +154,13 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/subjects': typeof SubjectsRoute
   '/terms': typeof TermsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/parent/profile': typeof ParentProfileRoute
   '/register/parent': typeof RegisterParentRoute
   '/register/student': typeof RegisterStudentRoute
   '/student/details': typeof StudentDetailsRoute
+  '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/student/': typeof StudentIndexRoute
@@ -157,10 +178,13 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/subjects': typeof SubjectsRoute
   '/terms': typeof TermsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/parent/profile': typeof ParentProfileRoute
   '/register/parent': typeof RegisterParentRoute
   '/register/student': typeof RegisterStudentRoute
   '/student/details': typeof StudentDetailsRoute
+  '/admin': typeof AdminIndexRoute
   '/parent': typeof ParentIndexRoute
   '/register': typeof RegisterIndexRoute
   '/student': typeof StudentIndexRoute
@@ -179,10 +203,13 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/subjects': typeof SubjectsRoute
   '/terms': typeof TermsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/parent/profile': typeof ParentProfileRoute
   '/register/parent': typeof RegisterParentRoute
   '/register/student': typeof RegisterStudentRoute
   '/student/details': typeof StudentDetailsRoute
+  '/admin/': typeof AdminIndexRoute
   '/parent/': typeof ParentIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/student/': typeof StudentIndexRoute
@@ -202,10 +229,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/subjects'
     | '/terms'
+    | '/admin/login'
+    | '/admin/profile'
     | '/parent/profile'
     | '/register/parent'
     | '/register/student'
     | '/student/details'
+    | '/admin/'
     | '/parent/'
     | '/register/'
     | '/student/'
@@ -223,10 +253,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/subjects'
     | '/terms'
+    | '/admin/login'
+    | '/admin/profile'
     | '/parent/profile'
     | '/register/parent'
     | '/register/student'
     | '/student/details'
+    | '/admin'
     | '/parent'
     | '/register'
     | '/student'
@@ -244,10 +277,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/subjects'
     | '/terms'
+    | '/admin/login'
+    | '/admin/profile'
     | '/parent/profile'
     | '/register/parent'
     | '/register/student'
     | '/student/details'
+    | '/admin/'
     | '/parent/'
     | '/register/'
     | '/student/'
@@ -266,10 +302,13 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SubjectsRoute: typeof SubjectsRoute
   TermsRoute: typeof TermsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   ParentProfileRoute: typeof ParentProfileRoute
   RegisterParentRoute: typeof RegisterParentRoute
   RegisterStudentRoute: typeof RegisterStudentRoute
   StudentDetailsRoute: typeof StudentDetailsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   ParentIndexRoute: typeof ParentIndexRoute
   RegisterIndexRoute: typeof RegisterIndexRoute
   StudentIndexRoute: typeof StudentIndexRoute
@@ -349,6 +388,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/admin/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parent/': {
       id: '/parent/'
       path: '/parent'
@@ -426,10 +486,13 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SubjectsRoute: SubjectsRoute,
   TermsRoute: TermsRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminProfileRoute: AdminProfileRoute,
   ParentProfileRoute: ParentProfileRoute,
   RegisterParentRoute: RegisterParentRoute,
   RegisterStudentRoute: RegisterStudentRoute,
   StudentDetailsRoute: StudentDetailsRoute,
+  AdminIndexRoute: AdminIndexRoute,
   ParentIndexRoute: ParentIndexRoute,
   RegisterIndexRoute: RegisterIndexRoute,
   StudentIndexRoute: StudentIndexRoute,
