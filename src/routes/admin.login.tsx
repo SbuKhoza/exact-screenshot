@@ -38,8 +38,7 @@ function AdminLogin() {
         await client.cancelQueries(); client.clear(); await logout();
         setErrors({ form: "This account has not been assigned as administrator for this website." }); return;
       }
-      await client.invalidateQueries({ queryKey: ["admin-access"] });
-      setNotice("Checking administrator access… If access is denied, contact your superadmin.");
+      setNotice("Signed in. Opening your dashboard…");
     } catch (e) { setErrors({ form: friendlyError(e) }); }
     finally { setBusy(false); }
   }

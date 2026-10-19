@@ -1,27 +1,19 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./auth";
 import { useTenant } from "./tenant-context";
 import { canAdminTenant } from "./admin-access";
-import { getAdminProfile } from "./admin";
 
 const Ctx = createContext({ loading: true, allowed: false });
+
+/**
+ * Decides whether the signed-in user may open the admin area.
+ * The administrator is the Firebase account the superadmin created for this tenant (uid === tenantId),
+ * so no extra lookup is needed. Real protection is enforced by Firestore rules on every read and write.
+ */
 export function AdminProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { tenantId, tenant } = useTenant();
-  const eligible = canAdminTenant(user, tenantId, tenant);
-  const access = useQuery({
-    queryKey: ["admin-access", tenantId, user?.uid, tenant?.isActive],
-    enabled: !loading && !!tenantId && eligible,
-    retry: false,
-    queryFn: async () => {
-      if (!user || !tenantId) return false;
-      if (!canAdminTenant(user, tenantId, tenant)) return false;
-      // A server-enforced read confirms access even before the first profile is saved.
-      await getAdminProfile(tenantId, user.uid);
-      return true;
-    },
-  });
-  return <Ctx.Provider value={{ loading: loading || (eligible && access.isPending), allowed: eligible && access.data === true }}>{children}</Ctx.Provider>;
+  const allowed = !loading && canAdminTenant(user, tenantId, tenant);
+  return <Ctx.Provider value={{ loading, allowed }}>{children}</Ctx.Provider>;
 }
 export const useAdmin = () => useContext(Ctx);
