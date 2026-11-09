@@ -14,7 +14,11 @@ export type SiteContent = {
   email: string;
   location: string;
   whatsapp: string;
+  socialLinks: Record<SocialPlatform, string>;
 };
+
+export type SocialPlatform = "facebook" | "instagram" | "youtube" | "linkedin" | "tiktok";
+const socialPlatforms: SocialPlatform[] = ["facebook", "instagram", "youtube", "linkedin", "tiktok"];
 
 type Doc = Record<string, unknown>;
 
@@ -49,11 +53,23 @@ export function buildSite(
   contact: Doc | null,
   footer: Doc | null,
   homepage: Doc | null,
+  brand: Doc | null = null,
 ): SiteContent {
   const phone = first(contact?.["phone"], footer?.["phone"], tenant?.["phone"]);
   const intl = toInternational(phone);
+  const rawSocialLinks = brand?.["socialLinks"];
+  const socialLinkData = rawSocialLinks && typeof rawSocialLinks === "object" ? rawSocialLinks as Record<string, unknown> : {};
+  const socialLinks = Object.fromEntries(socialPlatforms.map((platform) => {
+    const value = clean(socialLinkData[platform]);
+    if (!value) return [platform, ""];
+    try {
+      return [platform, new URL(value).protocol === "https:" ? value : ""];
+    } catch {
+      return [platform, ""];
+    }
+  })) as Record<SocialPlatform, string>;
   return {
-    name: first(tenant?.["businessName"], footer?.["companyName"]) || defaultSite.name,
+    name: first(brand?.["logoText"], tenant?.["businessName"], footer?.["companyName"]) || defaultSite.name,
     tagline: first(homepage?.["slogan"]) || defaultSite.tagline,
     short: first(homepage?.["shortDescription"], footer?.["companyDescription"]) || defaultSite.short,
     phone: phone || defaultSite.phone,
@@ -61,6 +77,7 @@ export function buildSite(
     email: first(contact?.["email"], footer?.["email"], tenant?.["email"]) || defaultSite.email,
     location: first(contact?.["address"], footer?.["address"], tenant?.["address"]) || defaultSite.location,
     whatsapp: intl ? `https://wa.me/${intl}` : defaultSite.whatsapp,
+    socialLinks,
   };
 }
 
@@ -76,6 +93,7 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
   const [contact, setContact] = useState<Doc | null>(null);
   const [footer, setFooter] = useState<Doc | null>(null);
   const [homepage, setHomepage] = useState<Doc | null>(null);
+  const [brand, setBrand] = useState<Doc | null>(null);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -86,13 +104,13 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
         (snap) => set(snap.exists() ? (snap.data() as Doc) : null),
         (err) => console.error(`Could not read tenant data/${name}:`, err),
       );
-    const unsubs = [watch("contactPage", setContact), watch("footer", setFooter), watch("homepage", setHomepage)];
+    const unsubs = [watch("contactPage", setContact), watch("footer", setFooter), watch("homepage", setHomepage), watch("brand", setBrand)];
     return () => unsubs.forEach((u) => u());
   }, [tenantId]);
 
   const value = useMemo(
-    () => buildSite(tenant as Record<string, unknown> | null, contact, footer, homepage),
-    [tenant, contact, footer, homepage],
+    () => buildSite(tenant as Record<string, unknown> | null, contact, footer, homepage, brand),
+    [tenant, contact, footer, homepage, brand],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -9,6 +9,7 @@ export const site = {
   email: "twistkarabo83@gmail.com",
   location: "South Africa (location to be confirmed)",
   whatsapp: "https://wa.me/27781763322",
+  socialLinks: { facebook: "", instagram: "", youtube: "", linkedin: "", tiktok: "" },
 };
 
 export type Subject = { id: string; name: string; blurb: string; icon: string };
