@@ -4,7 +4,30 @@ import type { Learner } from "./services";
 import { registrationStatuses, enquiryStatuses } from "./admin-access";
 
 export type AdminProfile = { displayName: string; cellphoneNumber: string };
-export type Enquiry = { id: string; name: string; email: string; subject: string; message: string; status: string };
+export type AdminBrand = { logoText: string; socialLinks: Record<"facebook" | "instagram" | "youtube" | "linkedin" | "tiktok", string> };
+export type Enquiry = { id: string; name: string; email: string; subject: string; message: string; status: string; createdAt?: { toMillis?: () => number } };
+
+const emptyBrand: AdminBrand = {
+  logoText: "",
+  socialLinks: { facebook: "", instagram: "", youtube: "", linkedin: "", tiktok: "" },
+};
+
+export async function getAdminBrand(tenantId: string): Promise<AdminBrand> {
+  const snap = await getDoc(doc(fb().db, "tenants", tenantId, "data", "brand"));
+  if (!snap.exists()) return emptyBrand;
+  const data = snap.data();
+  const rawLinks = data["socialLinks"];
+  const socialLinks = rawLinks && typeof rawLinks === "object" ? rawLinks as AdminBrand["socialLinks"] : emptyBrand.socialLinks;
+  return { logoText: typeof data["logoText"] === "string" ? data["logoText"] : "", socialLinks: { ...emptyBrand.socialLinks, ...socialLinks } };
+}
+
+export async function saveAdminBrand(tenantId: string, brand: AdminBrand) {
+  await setDoc(doc(fb().db, "tenants", tenantId, "data", "brand"), {
+    logoText: brand.logoText.trim(),
+    socialLinks: Object.fromEntries(Object.entries(brand.socialLinks).map(([key, value]) => [key, value.trim()])),
+    updatedAt: serverTimestamp(),
+  });
+}
 
 export async function getAdminProfile(tenantId: string, uid: string): Promise<AdminProfile | null> {
   const snap = await getDoc(doc(fb().db, "tenants", tenantId, "adminProfiles", uid));
@@ -21,7 +44,8 @@ export async function listAdminLearners(tenantId: string): Promise<Learner[]> {
 }
 export async function listAdminEnquiries(tenantId: string): Promise<Enquiry[]> {
   const snap = await getDocs(query(collection(fb().db, "contactMessages"), where("tenantId", "==", tenantId)));
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }) as Enquiry);
+  return snap.docs.map(d => ({ ...d.data(), id: d.id }) as Enquiry)
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 }
 export async function setRegistrationStatus(id: string, status: string) {
   if (!registrationStatuses.some(s => s === status)) throw new Error("Invalid status");

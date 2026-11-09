@@ -79,6 +79,32 @@ service cloud.firestore {
     match /tenants/{id} {
       allow read: if true;
       allow write: if false;
+      match /data/{docId} {
+        allow read: if docId in ['contactPage', 'footer', 'homepage', 'brand'];
+        allow write: if isAdmin() || (docId == 'brand' && isTenantAdmin(id)
+          && request.resource.data.keys().hasOnly(['logoText', 'socialLinks', 'updatedAt'])
+          && request.resource.data.logoText is string
+          && request.resource.data.logoText.size() > 0
+          && request.resource.data.logoText.size() <= 60
+          && request.resource.data.socialLinks is map
+          && request.resource.data.socialLinks.keys().hasOnly(['facebook', 'instagram', 'youtube', 'linkedin', 'tiktok'])
+          && request.resource.data.socialLinks.keys().hasAll(['facebook', 'instagram', 'youtube', 'linkedin', 'tiktok'])
+          && request.resource.data.socialLinks.facebook is string
+          && request.resource.data.socialLinks.facebook.size() <= 500
+          && (request.resource.data.socialLinks.facebook == '' || request.resource.data.socialLinks.facebook.matches('https://.*'))
+          && request.resource.data.socialLinks.instagram is string
+          && request.resource.data.socialLinks.instagram.size() <= 500
+          && (request.resource.data.socialLinks.instagram == '' || request.resource.data.socialLinks.instagram.matches('https://.*'))
+          && request.resource.data.socialLinks.youtube is string
+          && request.resource.data.socialLinks.youtube.size() <= 500
+          && (request.resource.data.socialLinks.youtube == '' || request.resource.data.socialLinks.youtube.matches('https://.*'))
+          && request.resource.data.socialLinks.linkedin is string
+          && request.resource.data.socialLinks.linkedin.size() <= 500
+          && (request.resource.data.socialLinks.linkedin == '' || request.resource.data.socialLinks.linkedin.matches('https://.*'))
+          && request.resource.data.socialLinks.tiktok is string
+          && request.resource.data.socialLinks.tiktok.size() <= 500
+          && (request.resource.data.socialLinks.tiktok == '' || request.resource.data.socialLinks.tiktok.matches('https://.*')));
+      }
       match /adminProfiles/{uid} {
         allow read: if signedIn() && request.auth.uid == uid && isTenantAdmin(id);
         allow create, update: if signedIn() && request.auth.uid == uid && isTenantAdmin(id)

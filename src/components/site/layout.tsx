@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, Facebook, Instagram, Youtube, Linkedin, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { subjects } from "@/lib/site";
@@ -97,6 +97,14 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   const site = useSite();
+  const socialItems = [
+    { key: "facebook", label: "Facebook", Icon: Facebook },
+    { key: "instagram", label: "Instagram", Icon: Instagram },
+    { key: "youtube", label: "YouTube", Icon: Youtube },
+    { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
+    { key: "tiktok", label: "TikTok", Icon: LinkIcon },
+  ] as const;
+  const socialLinks = socialItems.filter((item) => site.socialLinks[item.key]);
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container-page grid gap-10 py-14 md:grid-cols-4">
@@ -116,6 +124,7 @@ export function SiteFooter() {
           <a href={site.phoneHref} className="hover:underline">{site.phone}</a>
           <a href={`mailto:${site.email}`} className="break-all hover:underline">{site.email}</a>
           <span>{site.location}</span>
+          {socialLinks.length > 0 && <div className="pt-3"><p className="mb-3 text-xs font-bold uppercase tracking-wider text-secondary">Follow us</p><div className="flex flex-wrap gap-2">{socialLinks.map(({ key, label, Icon }) => <a key={key} href={site.socialLinks[key]} target="_blank" rel="noreferrer" aria-label={label} title={label} className="grid h-10 w-10 place-items-center rounded-full border border-primary-foreground/20 text-primary-foreground transition hover:bg-primary-foreground/10"><Icon className="h-5 w-5" /></a>)}</div></div>}
         </FooterCol>
       </div>
       <div className="border-t border-primary-foreground/15">

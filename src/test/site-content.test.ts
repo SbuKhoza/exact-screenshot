@@ -23,6 +23,20 @@ describe("buildSite", () => {
     expect(result.location).toBe("1 Main Rd");
   });
 
+  it("uses tenant-managed logo text and only renders secure social links", () => {
+    const result = buildSite(
+      { businessName: "Acme Plumbing" },
+      null,
+      null,
+      null,
+      { logoText: "Acme & Co", socialLinks: { facebook: "https://facebook.com/acme", instagram: "javascript:alert(1)", tiktok: "http://unsafe.example" } },
+    );
+    expect(result.name).toBe("Acme & Co");
+    expect(result.socialLinks.facebook).toBe("https://facebook.com/acme");
+    expect(result.socialLinks.instagram).toBe("");
+    expect(result.socialLinks.tiktok).toBe("");
+  });
+
   it("ignores the placeholder values the CMS pre-fills", () => {
     const result = buildSite(null, null, { address: "Your Address Here", email: "info@yourcompany.com" }, null);
     expect(result.location).toBe(site.location);
