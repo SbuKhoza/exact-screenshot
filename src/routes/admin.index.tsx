@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Clock3, CheckCircle2, Mail, Search, RefreshCw, Loader2 } from "lucide-react";
+import { Users, Clock3, CheckCircle2, Mail, Search, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
 import { AdminGate, AdminShell } from "@/components/admin-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ function Dashboard() {
   const [filter, setFilter] = useState("all");
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
+  const [selectedEnquiryId, setSelectedEnquiryId] = useState<string | null>(null);
   const rows = useQuery({ queryKey: ["admin-learners", tenantId], queryFn: () => tenantId ? listAdminLearners(tenantId) : [], enabled: !!tenantId, retry: false });
   const messages = useQuery({ queryKey: ["admin-enquiries", tenantId], queryFn: () => tenantId ? listAdminEnquiries(tenantId) : [], enabled: !!tenantId, retry: false });
   const learners = rows.data ?? [];
@@ -34,6 +35,11 @@ function Dashboard() {
     setBusyId(id); setError("");
     try { await (enquiry ? setEnquiryStatus(id, status) : setRegistrationStatus(id, status)); await client.invalidateQueries({ queryKey: [enquiry ? "admin-enquiries" : "admin-learners", tenantId] }); }
     catch (e) { setError(friendlyError(e)); } finally { setBusyId(""); }
+  }
+  function openEnquiry(id: string) {
+    setSelectedEnquiryId(id);
+    const enquiry = enquiries.find(item => item.id === id);
+    if (enquiry?.status === "new") void change(id, "read", true);
   }
   return <div className="space-y-8">
     <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-sm font-semibold text-muted-foreground">{tenant?.businessName || "SS Academy"}</p><h1 className="mt-1 text-3xl font-bold">Overview</h1></div><Button variant="outline" size="icon" aria-label="Refresh dashboard" title="Refresh dashboard" onClick={() => { void rows.refetch(); void messages.refetch(); }}><RefreshCw className={rows.isFetching || messages.isFetching ? "animate-spin" : ""} /></Button></div>
@@ -48,7 +54,38 @@ function Dashboard() {
       <TabsContent value="learners" className="mt-6"><div className="mb-5 flex flex-wrap gap-3"><div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Search learners" className="pl-9" placeholder="Search learners or schools" value={search} onChange={e => setSearch(e.target.value)} /></div><Select value={filter} onValueChange={setFilter}><SelectTrigger aria-label="Filter registration status" className="w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All statuses</SelectItem>{registrationStatuses.map(s => <SelectItem key={s} value={s}>{labels[s]}</SelectItem>)}</SelectContent></Select></div>
         {rows.isPending ? <Loader2 aria-label="Loading learners" className="mx-auto my-10 animate-spin text-primary" /> : <div className="divide-y border-y">{visible.map(l => <article key={l.id} className="py-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold">{l.firstName} {l.surname}</h2><p className="mt-1 text-sm text-muted-foreground">{l.grade} · {l.schoolName}</p></div><StatusBadge status={l.registrationStatus} /></div><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><p>{l.subjects?.map(s => s === "Other" ? l.otherSubject : s).join(", ")}</p><p className="break-words text-muted-foreground">{l.cellphoneNumber || "No learner phone"}{l.email ? ` · ${l.email}` : ""}</p></div>{l.changeRequest && <p className="mt-3 border-l-2 border-warning pl-3 text-sm">Change request: {l.changeRequest}</p>}<div className="mt-4"><StatusSelect value={l.registrationStatus} statuses={registrationStatuses} disabled={busyId === l.id} onChange={s => void change(l.id, s)} label={`Status for ${l.firstName} ${l.surname}`} /></div></article>)}{!visible.length && !rows.error && <p className="py-12 text-center text-sm text-muted-foreground">{search || filter !== "all" ? "No matching learners." : "No registrations for this tenant yet."}</p>}</div>}
       </TabsContent>
-      <TabsContent value="enquiries" className="mt-6">{messages.isPending ? <Loader2 className="mx-auto my-10 animate-spin text-primary" /> : <div className="divide-y border-y">{enquiries.map(e => <article key={e.id} className="py-5"><h2 className="font-bold">{e.subject}</h2><p className="mt-1 break-words text-sm text-muted-foreground">{e.name} · {e.email}</p><p className="my-4 whitespace-pre-wrap break-words text-sm">{e.message}</p><div className="flex flex-wrap items-center gap-3"><StatusSelect value={e.status} statuses={enquiryStatuses} disabled={busyId === e.id} onChange={s => void change(e.id, s, true)} label={`Status for enquiry from ${e.name}`} /><Button asChild variant="outline" size="sm"><a href={`mailto:${e.email}`}><Mail />Reply</a></Button></div></article>)}{!enquiries.length && !messages.error && <p className="py-12 text-center text-sm text-muted-foreground">No enquiries for this tenant yet.</p>}</div>}</TabsContent>
+      <TabsContent value="enquiries" className="mt-6">
+        {messages.isPending ? <Loader2 className="mx-auto my-10 animate-spin text-primary" /> : enquiries.length ? <div className="grid min-h-[30rem] overflow-hidden rounded-lg border bg-card md:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.5fr)]">
+          <section aria-label="Contact messages" className={`${selectedEnquiryId ? "hidden md:block" : "block"} border-r`}>
+            <div className="flex items-center justify-between border-b px-4 py-3"><h2 className="font-semibold">Inbox</h2><span className="text-sm text-muted-foreground">{enquiries.filter(e => e.status === "new").length} unread</span></div>
+            <div className="divide-y">
+              {enquiries.map(e => <Button key={e.id} type="button" variant="ghost" onClick={() => openEnquiry(e.id)} aria-pressed={selectedEnquiryId === e.id} className={`h-auto w-full justify-start whitespace-normal rounded-none px-4 py-4 text-left ${selectedEnquiryId === e.id ? "bg-accent" : ""}`}>
+                <span className="grid min-w-0 flex-1 gap-1">
+                  <span className={`truncate text-sm ${e.status === "new" ? "font-bold text-foreground" : "font-medium text-muted-foreground"}`}>{e.name}</span>
+                  <span className="truncate text-sm font-semibold text-foreground">{e.subject || "No subject"}</span>
+                  <span className="line-clamp-2 text-xs font-normal text-muted-foreground">{e.message}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{e.email}</span>
+                </span>
+                {e.status === "new" && <span className="ml-2 mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" aria-label="Unread" />}
+              </Button>)}
+            </div>
+          </section>
+          <section aria-label="Message details" className={`${selectedEnquiryId ? "block" : "hidden md:flex"} min-w-0 flex-col`}>
+            {(() => {
+              const selected = enquiries.find(e => e.id === selectedEnquiryId);
+              return selected ? <>
+                <div className="border-b p-4 sm:p-6">
+                  <Button type="button" variant="ghost" size="sm" className="mb-4 px-2 md:hidden" onClick={() => setSelectedEnquiryId(null)}><ArrowLeft />Back to inbox</Button>
+                  <div className="flex flex-wrap items-start justify-between gap-3"><h2 className="min-w-0 flex-1 break-words text-xl font-bold">{selected.subject || "No subject"}</h2><StatusBadge status={selected.status} /></div>
+                  <div className="mt-5 flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="break-words text-sm font-semibold">{selected.name}</p><p className="break-all text-sm text-muted-foreground">{selected.email}</p></div><Button asChild variant="outline" size="sm"><a href={`mailto:${selected.email}`}><Mail />Reply</a></Button></div>
+                </div>
+                <div className="min-h-48 flex-1 p-4 sm:p-6"><p className="whitespace-pre-wrap break-words text-sm leading-7">{selected.message}</p></div>
+                <div className="border-t p-4"><StatusSelect value={selected.status} statuses={enquiryStatuses} disabled={busyId === selected.id} onChange={s => void change(selected.id, s, true)} label={`Status for enquiry from ${selected.name}`} /></div>
+              </> : <div className="hidden h-full items-center justify-center p-8 text-center text-sm text-muted-foreground md:flex">Select a message to read it.</div>;
+            })()}
+          </section>
+        </div> : !messages.error && <p className="border-y py-12 text-center text-sm text-muted-foreground">No enquiries for this tenant yet.</p>}
+      </TabsContent>
     </Tabs>
   </div>;
 }
