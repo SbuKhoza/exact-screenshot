@@ -8,7 +8,7 @@ import { AuthCard, Field, PasswordInput, TextInput } from "@/components/forms";
 import { Button } from "@/components/ui/button";
 import { useAdmin } from "@/lib/admin-context";
 import { useTenant } from "@/lib/tenant-context";
-import { fb, friendlyError } from "@/lib/firebase";
+import { friendlyError } from "@/lib/firebase";
 import { login, logout } from "@/lib/services";
 import { canAdminTenant } from "@/lib/admin-access";
 import { email, issues, type Errors } from "@/lib/validation";
