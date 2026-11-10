@@ -5,6 +5,6 @@
 - [x] Warmer, less-blue palette
 - [x] Add Firebase keys
 - [x] Add tenant admin sign-in, profile, and registrations/enquiries dashboard
-- [x] Verify admin access and tenant isolation
+- [ ] Verify admin access and tenant isolation against deployed Firebase rules
 - [x] Add tenant-managed logo text and social links
 - [x] Deliver contact form messages to the tenant admin inbox
