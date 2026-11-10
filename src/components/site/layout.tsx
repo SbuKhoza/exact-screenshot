@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { ChevronDown, Menu, X, Facebook, Instagram, Youtube, Linkedin, Link as LinkIcon } from "lucide-react";
+import { ChevronDown, Menu, X, Facebook, Instagram, Youtube, Linkedin, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { subjects } from "@/lib/site";
@@ -102,7 +102,7 @@ export function SiteFooter() {
     { key: "instagram", label: "Instagram", Icon: Instagram },
     { key: "youtube", label: "YouTube", Icon: Youtube },
     { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
-    { key: "tiktok", label: "TikTok", Icon: LinkIcon },
+    { key: "tiktok", label: "TikTok", Icon: Music2 },
   ] as const;
   const socialLinks = socialItems.filter((item) => site.socialLinks[item.key]);
   return (
