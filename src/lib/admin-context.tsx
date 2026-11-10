@@ -12,8 +12,8 @@ const Ctx = createContext({ loading: true, allowed: false });
  */
 export function AdminProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { tenantId, tenant } = useTenant();
+  const { status, tenantId, tenant } = useTenant();
   const allowed = !loading && canAdminTenant(user, tenantId, tenant);
-  return <Ctx.Provider value={{ loading, allowed }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ loading: loading || status === "loading", allowed }}>{children}</Ctx.Provider>;
 }
 export const useAdmin = () => useContext(Ctx);

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { sendEmailVerification } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, Loader2 } from "lucide-react";
@@ -34,6 +35,12 @@ function AdminLogin() {
     setBusy(true); setErrors({}); setNotice("");
     try {
       const cred = await login(result.data.email, result.data.password);
+      if (cred.user.emailVerified === false && cred.user.email?.toLowerCase() === tenant?.email?.toLowerCase()) {
+        await sendEmailVerification(cred.user, { url: window.location.origin + "/admin/login" });
+        await client.cancelQueries(); client.clear(); await logout();
+        setNotice("A verification link was sent to your email. Verify the address, then sign in again.");
+        return;
+      }
       if (!canAdminTenant(cred.user, tenantId, tenant)) {
         await client.cancelQueries(); client.clear(); await logout();
         setErrors({ form: "This account has not been assigned as administrator for this website." }); return;
