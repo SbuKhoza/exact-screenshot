@@ -6,7 +6,7 @@ service cloud.firestore {
     function activeTenant(id) { return id is string && get(/databases/$(database)/documents/tenants/$(id)).data.isActive != false; }
     function isTenantAdmin(id) {
       return signedIn() && request.auth.token.email_verified == true && id is string
-        && activeTenant(id)
+        && request.auth.uid == id && activeTenant(id)
         && request.auth.token.email.lower() == get(/databases/$(database)/documents/tenants/$(id)).data.email.lower();
     }
     function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }

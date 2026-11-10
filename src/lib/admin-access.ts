@@ -1,14 +1,11 @@
-/**
- * A tenant administrator is the Firebase account the superadmin created for the tenant in the CMS.
- * The CMS uses that account's uid as the tenant id, so the signed-in uid must equal the tenant id.
- * No email verification or second factor is required.
- */
+/** Tenant admin access is tied to the verified email assigned to the active tenant by its superadmin. */
 export function canAdminTenant(
-  user: { uid: string } | null,
+  user: { email: string | null; emailVerified: boolean } | null,
   tenantId: string | null,
-  tenant: { isActive?: boolean } | null,
+  tenant: { email?: string; isActive?: boolean } | null,
 ): boolean {
-  return !!user && !!tenantId && !!tenant && tenant.isActive !== false && user.uid === tenantId;
+  return !!user?.email && user.emailVerified && !!tenantId && !!tenant?.email
+    && tenant.isActive !== false && user.email.toLowerCase() === tenant.email.toLowerCase();
 }
 
 export const registrationStatuses = ["pending_review", "contacted", "enrolled", "declined"] as const;
