@@ -53,15 +53,6 @@ export async function listAdminAccounts(tenantId: string): Promise<AdminAccount[
       : [];
   }).sort((a, b) => a.email.localeCompare(b.email));
 }
-export async function listAdminAccounts(tenantId: string): Promise<AdminAccount[]> {
-  const snap = await getDocs(query(collection(fb().db, "users"), where("tenantId", "==", tenantId)));
-  return snap.docs.flatMap(d => {
-    const data = d.data();
-    return typeof data["email"] === "string" && data["email"].trim()
-      ? [{ uid: d.id, email: data["email"], role: typeof data["role"] === "string" ? data["role"] : "account", profileCompleted: data["profileCompleted"] === true }]
-      : [];
-  }).sort((a, b) => a.email.localeCompare(b.email));
-}
 export async function listAdminEnquiries(tenantId: string): Promise<Enquiry[]> {
   const snap = await getDocs(query(collection(fb().db, "contactMessages"), where("tenantId", "==", tenantId)));
   return snap.docs.map(d => ({ ...d.data(), id: d.id }) as Enquiry)
