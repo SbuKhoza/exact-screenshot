@@ -14,3 +14,4 @@
 - Tenant branding and social links live in `tenants/{id}/data/brand`; why: each tenant edits its own site and Firestore rules constrain access.
 - Tenant admin access requires verified Firebase email matching the active tenant's superadmin-managed email and is enforced in Firestore rules; why: browser checks alone cannot authorize private data.
 - Admin profiles are tenant subcollection documents; registrations and enquiries carry immutable tenantId fields and admin queries filter by them; why: administrators must never see another tenant's records or unassigned legacy records.
+- Tenant admins may read only tenant-scoped account records to send password-reset emails; never expose or set another user's password from the admin UI.

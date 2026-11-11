@@ -5,6 +5,7 @@ import { registrationStatuses, enquiryStatuses } from "./admin-access";
 
 export type AdminProfile = { displayName: string; cellphoneNumber: string };
 export type AdminBrand = { logoText: string; socialLinks: Record<"facebook" | "instagram" | "youtube" | "linkedin" | "tiktok", string> };
+export type AdminAccount = { uid: string; email: string; role: string; profileCompleted: boolean };
 export type Enquiry = { id: string; name: string; email: string; subject: string; message: string; status: string; createdAt?: { toMillis?: () => number } };
 
 const emptyBrand: AdminBrand = {
@@ -41,6 +42,16 @@ export async function saveAdminProfile(tenantId: string, uid: string, profile: A
 export async function listAdminLearners(tenantId: string): Promise<Learner[]> {
   const snap = await getDocs(query(collection(fb().db, "students"), where("tenantId", "==", tenantId)));
   return snap.docs.map(d => ({ ...d.data(), id: d.id }) as Learner);
+}
+export async function listAdminAccounts(tenantId: string): Promise<AdminAccount[]> {
+  const snap = await getDocs(query(collection(fb().db, "users"), where("tenantId", "==", tenantId)));
+  return snap.docs.flatMap(d => {
+    const data = d.data();
+    const email = data["email"];
+    return typeof email === "string" && email.trim()
+      ? [{ uid: d.id, email, role: typeof data["role"] === "string" ? data["role"] : "account", profileCompleted: data["profileCompleted"] === true }]
+      : [];
+  }).sort((a, b) => a.email.localeCompare(b.email));
 }
 export async function listAdminEnquiries(tenantId: string): Promise<Enquiry[]> {
   const snap = await getDocs(query(collection(fb().db, "contactMessages"), where("tenantId", "==", tenantId)));
