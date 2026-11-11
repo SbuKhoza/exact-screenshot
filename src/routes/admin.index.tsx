@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Clock3, CheckCircle2, Mail, Search, RefreshCw, Loader2, ArrowLeft } from "lucide-react";
+import { Users, Clock3, CheckCircle2, Mail, Search, RefreshCw, Loader2, ArrowLeft, KeyRound } from "lucide-react";
 import { AdminGate, AdminShell } from "@/components/admin-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/guard";
 import { useTenant } from "@/lib/tenant-context";
-import { listAdminLearners, listAdminEnquiries, setRegistrationStatus, setEnquiryStatus } from "@/lib/admin";
+import { listAdminLearners, listAdminEnquiries, listAdminAccounts, setRegistrationStatus, setEnquiryStatus } from "@/lib/admin";
 import { registrationStatuses, enquiryStatuses } from "@/lib/admin-access";
 import { friendlyError } from "@/lib/firebase";
+import { resetPassword } from "@/lib/services";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [{ title: "Admin Dashboard — SS Academy" }, { name: "description", content: "Manage learner registrations and contact form messages." }, { property: "og:title", content: "Admin Dashboard — SS Academy" }, { property: "og:description", content: "Tenant administration for SS Academy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -26,7 +27,10 @@ function Dashboard() {
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
   const [selectedEnquiryId, setSelectedEnquiryId] = useState<string | null>(null);
+  const [resettingUid, setResettingUid] = useState("");
+  const [resetNotice, setResetNotice] = useState<{ uid: string; text: string; failed: boolean } | null>(null);
   const rows = useQuery({ queryKey: ["admin-learners", tenantId], queryFn: () => tenantId ? listAdminLearners(tenantId) : [], enabled: !!tenantId, retry: false });
+  const accounts = useQuery({ queryKey: ["admin-accounts", tenantId], queryFn: () => tenantId ? listAdminAccounts(tenantId) : [], enabled: !!tenantId, retry: false });
   const messages = useQuery({ queryKey: ["admin-enquiries", tenantId], queryFn: () => tenantId ? listAdminEnquiries(tenantId) : [], enabled: !!tenantId, retry: false });
   const learners = rows.data ?? [];
   const enquiries = messages.data ?? [];
@@ -35,6 +39,18 @@ function Dashboard() {
     setBusyId(id); setError("");
     try { await (enquiry ? setEnquiryStatus(id, status) : setRegistrationStatus(id, status)); await client.invalidateQueries({ queryKey: [enquiry ? "admin-enquiries" : "admin-learners", tenantId] }); }
     catch (e) { setError(friendlyError(e)); } finally { setBusyId(""); }
+  }
+  async function sendResetLink(uid: string, email: string) {
+    setResettingUid(uid);
+    setResetNotice(null);
+    try {
+      await resetPassword(email);
+      setResetNotice({ uid, text: `Password reset link sent to ${email}.`, failed: false });
+    } catch (e) {
+      setResetNotice({ uid, text: friendlyError(e), failed: true });
+    } finally {
+      setResettingUid("");
+    }
   }
   function openEnquiry(id: string) {
     setSelectedEnquiryId(id);
@@ -50,7 +66,7 @@ function Dashboard() {
       { label: "New enquiries", value: enquiries.filter(e => e.status === "new").length, icon: Mail, color: "text-highlight bg-highlight/10" },
     ].map(s => <div key={s.label} className="rounded-lg border bg-card p-4"><s.icon className={`mb-4 h-8 w-8 rounded-md p-1.5 ${s.color}`} /><p className="text-3xl font-bold">{rows.isPending || messages.isPending ? "—" : s.value}</p><p className="mt-1 text-sm text-muted-foreground">{s.label}</p></div>)}</div>
     {(error || rows.error || messages.error) && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error || friendlyError(rows.error || messages.error)} No records could be loaded. Please contact your superadmin if access has not been enabled.</p>}
-    <Tabs defaultValue="learners"><TabsList><TabsTrigger value="learners">Learner registrations</TabsTrigger><TabsTrigger value="enquiries">Contact form messages</TabsTrigger></TabsList>
+    <Tabs defaultValue="learners"><TabsList><TabsTrigger value="learners">Learner registrations</TabsTrigger><TabsTrigger value="enquiries">Contact form messages</TabsTrigger><TabsTrigger value="accounts">User accounts</TabsTrigger></TabsList>
       <TabsContent value="learners" className="mt-6"><div className="mb-5 flex flex-wrap gap-3"><div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Search learners" className="pl-9" placeholder="Search learners or schools" value={search} onChange={e => setSearch(e.target.value)} /></div><Select value={filter} onValueChange={setFilter}><SelectTrigger aria-label="Filter registration status" className="w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All statuses</SelectItem>{registrationStatuses.map(s => <SelectItem key={s} value={s}>{labels[s]}</SelectItem>)}</SelectContent></Select></div>
         {rows.isPending ? <Loader2 aria-label="Loading learners" className="mx-auto my-10 animate-spin text-primary" /> : <div className="divide-y border-y">{visible.map(l => <article key={l.id} className="py-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold">{l.firstName} {l.surname}</h2><p className="mt-1 text-sm text-muted-foreground">{l.grade} · {l.schoolName}</p></div><StatusBadge status={l.registrationStatus} /></div><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><p>{l.subjects?.map(s => s === "Other" ? l.otherSubject : s).join(", ")}</p><p className="break-words text-muted-foreground">{l.cellphoneNumber || "No learner phone"}{l.email ? ` · ${l.email}` : ""}</p></div>{l.changeRequest && <p className="mt-3 border-l-2 border-warning pl-3 text-sm">Change request: {l.changeRequest}</p>}<div className="mt-4"><StatusSelect value={l.registrationStatus} statuses={registrationStatuses} disabled={busyId === l.id} onChange={s => void change(l.id, s)} label={`Status for ${l.firstName} ${l.surname}`} /></div></article>)}{!visible.length && !rows.error && <p className="py-12 text-center text-sm text-muted-foreground">{search || filter !== "all" ? "No matching learners." : "No registrations for this tenant yet."}</p>}</div>}
       </TabsContent>
@@ -85,6 +101,10 @@ function Dashboard() {
             })()}
           </section>
         </div> : !messages.error && <p className="border-y py-12 text-center text-sm text-muted-foreground">No enquiries for this tenant yet.</p>}
+      </TabsContent>
+      <TabsContent value="accounts" className="mt-6">
+        <div className="mb-4"><h2 className="text-lg font-semibold">Tenant user accounts</h2><p className="mt-1 text-sm text-muted-foreground">Send a password reset link to a user’s email address. Their password is never shown or changed by the admin.</p></div>
+        {accounts.isPending ? <Loader2 aria-label="Loading user accounts" className="mx-auto my-10 animate-spin text-primary" /> : accounts.error ? <p role="alert" className="border-y py-5 text-sm text-destructive">{friendlyError(accounts.error)} Check that the updated Firebase rules have been deployed.</p> : accounts.data?.length ? <div className="divide-y border-y">{accounts.data.map(account => <article key={account.uid} className="flex flex-wrap items-center justify-between gap-4 py-4"><div className="min-w-0"><p className="break-all font-semibold">{account.email}</p><p className="mt-1 text-sm capitalize text-muted-foreground">{account.role}{account.profileCompleted ? " · Profile complete" : " · Profile incomplete"}</p></div><div className="flex min-w-48 flex-col items-start gap-2">{resetNotice?.uid === account.uid && <p role={resetNotice.failed ? "alert" : "status"} className={`text-sm ${resetNotice.failed ? "text-destructive" : "text-success"}`}>{resetNotice.text}</p>}<Button type="button" variant="outline" size="sm" disabled={!!resettingUid} onClick={() => void sendResetLink(account.uid, account.email)}>{resettingUid === account.uid ? <Loader2 className="animate-spin" /> : <KeyRound />}Send reset link</Button></div></article>)}</div> : <p className="border-y py-12 text-center text-sm text-muted-foreground">No user accounts are linked to this tenant yet.</p>}
       </TabsContent>
     </Tabs>
   </div>;
