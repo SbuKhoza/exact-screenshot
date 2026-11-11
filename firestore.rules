@@ -22,7 +22,7 @@ service cloud.firestore {
     function learnerKeys() { return ['firstName','surname','dateOfBirth','cellphoneNumber','subjects','otherSubject','grade','schoolName','updatedAt','changeRequest']; }
 
     match /users/{uid} {
-      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin() || isTenantAdmin(resource.data.tenantId);
       allow create: if signedIn() && request.auth.uid == uid
         && request.resource.data.role in ['parent', 'student']
         && request.resource.data.profileCompleted == false
