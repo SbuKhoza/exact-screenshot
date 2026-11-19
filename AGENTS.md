@@ -15,3 +15,4 @@
 - Tenant admin access requires verified Firebase email matching the active tenant's superadmin-managed email and is enforced in Firestore rules; why: browser checks alone cannot authorize private data.
 - Admin profiles are tenant subcollection documents; registrations and enquiries carry immutable tenantId fields and admin queries filter by them; why: administrators must never see another tenant's records or unassigned legacy records.
 - Tenant admins may read only tenant-scoped account records to send password-reset emails; never expose or set another user's password from the admin UI.
+- Store lesson registers as one Firestore record per learner, with tenant rules binding each record to an enrolled learner UID; why: learner queries stay private and meeting links are delivered only to selected accounts.

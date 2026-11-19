@@ -8,3 +8,5 @@
 - [ ] Verify admin access and tenant isolation against deployed Firebase rules
 - [x] Add tenant-managed logo text and social links
 - [x] Deliver contact form messages to the tenant admin inbox
+- [ ] Add tenant-scoped learner lesson registers, start dates, plans, marks, and selected-learner meeting links
+- [ ] Verify lesson-register flows and document Firestore-rules deployment
