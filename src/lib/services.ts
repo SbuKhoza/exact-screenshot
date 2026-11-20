@@ -28,6 +28,7 @@ export type Role = "parent" | "student";
 export type Account = { uid: string; email: string; role: Role; profileCompleted: boolean; tenantId?: string };
 export type Learner = {
   id: string;
+  tenantId?: string;
   accountType: "parent_registered" | "independent";
   parentUid: string | null;
   uid: string | null;

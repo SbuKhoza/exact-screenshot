@@ -7,6 +7,7 @@ export type LessonRegister = {
   tenantId: string;
   learnerId: string;
   learnerUid: string;
+  parentUid: string | null;
   learnerName: string;
   startDate: string;
   meetingUrl: string;
@@ -38,6 +39,10 @@ export const lessonRegisterSchema = z.object({
 });
 
 export type LessonRegisterInput = z.infer<typeof lessonRegisterSchema>;
+
+export function lessonEntryBelongsTo(entry: Pick<LessonRegister, "learnerUid" | "parentUid">, userId: string): boolean {
+  return entry.learnerUid === userId || entry.parentUid === userId;
+}
 
 export function validateLessonMark(lessons: PlannedLesson[], lessonId: string, score: number): number {
   if (!lessons.some((lesson) => lesson.id === lessonId)) throw new Error("This lesson is not in the register.");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lessonRegisterSchema, validateLessonMark, type PlannedLesson } from "@/lib/lesson-register";
+import { lessonEntryBelongsTo, lessonRegisterSchema, validateLessonMark, type PlannedLesson } from "@/lib/lesson-register";
 
 const lessons: PlannedLesson[] = [{ id: "lesson-1", title: "Algebra", plan: "Linear equations" }];
 const validInput = { startDate: "2026-11-20", meetingUrl: "https://meet.example.com/class", learnerIds: ["student-1"], lessons };
@@ -20,5 +20,11 @@ describe("lesson registers", () => {
     expect(validateLessonMark(lessons, "lesson-1", 100)).toBe(100);
     expect(() => validateLessonMark(lessons, "lesson-1", 101)).toThrow("Enter a mark from 0 to 100.");
     expect(() => validateLessonMark(lessons, "lesson-2", 50)).toThrow("This lesson is not in the register.");
+  });
+  it("limits schedule access to the assigned learner or their parent account", () => {
+    const assignment = { learnerUid: "student-1", parentUid: "parent-1" };
+    expect(lessonEntryBelongsTo(assignment, "student-1")).toBe(true);
+    expect(lessonEntryBelongsTo(assignment, "parent-1")).toBe(true);
+    expect(lessonEntryBelongsTo(assignment, "student-2")).toBe(false);
   });
 });

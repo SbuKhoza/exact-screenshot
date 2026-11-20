@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { friendlyError } from "@/lib/firebase";
 import { getParentProfile, listChildren, type Learner, type ParentProfile } from "@/lib/services";
+import { listLearnerLessonEntries } from "@/lib/lesson-register-data";
+import { LessonSchedule } from "@/components/lesson-schedule";
+import type { LessonRegister } from "@/lib/lesson-register";
 
 export const Route = createFileRoute("/parent/")({
-  head: () => ({ meta: [{ title: "Parent Dashboard — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Parent Dashboard — SS Academy" }, { name: "description", content: "View your family's SS Academy learner registrations and scheduled lessons." }, { property: "og:title", content: "Parent Dashboard — SS Academy" }, { property: "og:description", content: "Your family's SS Academy learner and lesson information." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="parent" needsProfile>
       <DashboardShell role="parent"><Dashboard /></DashboardShell>
@@ -20,11 +23,13 @@ function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<ParentProfile | null>(null);
   const [kids, setKids] = useState<Learner[] | null>(null);
+  const [lessonEntries, setLessonEntries] = useState<LessonRegister[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([getParentProfile(user!.uid), listChildren(user!.uid)])
-      .then(([p, k]) => { setProfile(p); setKids(k); })
+    if (!user) return;
+    Promise.all([getParentProfile(user.uid), listChildren(user.uid), listLearnerLessonEntries(user.uid, true)])
+      .then(([p, k, schedules]) => { setProfile(p); setKids(k); setLessonEntries(schedules); })
       .catch((e) => setError(friendlyError(e)));
   }, [user]);
 
@@ -71,6 +76,7 @@ function Dashboard() {
           </div>
         )}
       </section>
+      <LessonSchedule entries={lessonEntries} heading="Children’s lesson register" />
     </div>
   );
 }

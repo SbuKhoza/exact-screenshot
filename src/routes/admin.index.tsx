@@ -13,6 +13,8 @@ import { listAdminLearners, listAdminEnquiries, listAdminAccounts, setRegistrati
 import { registrationStatuses, enquiryStatuses } from "@/lib/admin-access";
 import { friendlyError } from "@/lib/firebase";
 import { resetPassword } from "@/lib/services";
+import { useAuth } from "@/lib/auth";
+import { AdminLessonRegister } from "@/components/admin-lesson-register";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [{ title: "Admin Dashboard — SS Academy" }, { name: "description", content: "Manage learner registrations and contact form messages." }, { property: "og:title", content: "Admin Dashboard — SS Academy" }, { property: "og:description", content: "Tenant administration for SS Academy." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/admin/")({
 const labels: Record<string, string> = { pending_review: "Pending review", contacted: "Contacted", enrolled: "Enrolled", declined: "Declined", new: "New", read: "Read", resolved: "Resolved" };
 function Dashboard() {
   const { tenantId, tenant } = useTenant();
+  const { user } = useAuth();
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -66,10 +69,11 @@ function Dashboard() {
       { label: "New enquiries", value: enquiries.filter(e => e.status === "new").length, icon: Mail, color: "text-highlight bg-highlight/10" },
     ].map(s => <div key={s.label} className="rounded-lg border bg-card p-4"><s.icon className={`mb-4 h-8 w-8 rounded-md p-1.5 ${s.color}`} /><p className="text-3xl font-bold">{rows.isPending || messages.isPending ? "—" : s.value}</p><p className="mt-1 text-sm text-muted-foreground">{s.label}</p></div>)}</div>
     {(error || rows.error || messages.error) && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">{error || friendlyError(rows.error || messages.error)} No records could be loaded. Please contact your superadmin if access has not been enabled.</p>}
-    <Tabs defaultValue="learners"><TabsList><TabsTrigger value="learners">Learner registrations</TabsTrigger><TabsTrigger value="enquiries">Contact form messages</TabsTrigger><TabsTrigger value="accounts">User accounts</TabsTrigger></TabsList>
+    <Tabs defaultValue="learners"><TabsList><TabsTrigger value="learners">Learner registrations</TabsTrigger><TabsTrigger value="lessons">Lesson register</TabsTrigger><TabsTrigger value="enquiries">Contact form messages</TabsTrigger><TabsTrigger value="accounts">User accounts</TabsTrigger></TabsList>
       <TabsContent value="learners" className="mt-6"><div className="mb-5 flex flex-wrap gap-3"><div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><Input aria-label="Search learners" className="pl-9" placeholder="Search learners or schools" value={search} onChange={e => setSearch(e.target.value)} /></div><Select value={filter} onValueChange={setFilter}><SelectTrigger aria-label="Filter registration status" className="w-44"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All statuses</SelectItem>{registrationStatuses.map(s => <SelectItem key={s} value={s}>{labels[s]}</SelectItem>)}</SelectContent></Select></div>
         {rows.isPending ? <Loader2 aria-label="Loading learners" className="mx-auto my-10 animate-spin text-primary" /> : <div className="divide-y border-y">{visible.map(l => <article key={l.id} className="py-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold">{l.firstName} {l.surname}</h2><p className="mt-1 text-sm text-muted-foreground">{l.grade} · {l.schoolName}</p></div><StatusBadge status={l.registrationStatus} /></div><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2"><p>{l.subjects?.map(s => s === "Other" ? l.otherSubject : s).join(", ")}</p><p className="break-words text-muted-foreground">{l.cellphoneNumber || "No learner phone"}{l.email ? ` · ${l.email}` : ""}</p></div>{l.changeRequest && <p className="mt-3 border-l-2 border-warning pl-3 text-sm">Change request: {l.changeRequest}</p>}<div className="mt-4"><StatusSelect value={l.registrationStatus} statuses={registrationStatuses} disabled={busyId === l.id} onChange={s => void change(l.id, s)} label={`Status for ${l.firstName} ${l.surname}`} /></div></article>)}{!visible.length && !rows.error && <p className="py-12 text-center text-sm text-muted-foreground">{search || filter !== "all" ? "No matching learners." : "No registrations for this tenant yet."}</p>}</div>}
       </TabsContent>
+      <TabsContent value="lessons" className="mt-6"><AdminLessonRegister learners={learners} adminUid={user?.uid ?? ""} /></TabsContent>
       <TabsContent value="enquiries" className="mt-6">
         {messages.isPending ? <Loader2 className="mx-auto my-10 animate-spin text-primary" /> : enquiries.length ? <div className="grid min-h-[30rem] overflow-hidden rounded-lg border bg-card md:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.5fr)]">
           <section aria-label="Contact messages" className={`${selectedEnquiryId ? "hidden md:block" : "block"} border-r`}>

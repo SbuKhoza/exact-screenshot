@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { friendlyError } from "@/lib/firebase";
 import { getLearner, type Learner } from "@/lib/services";
+import { listLearnerLessonEntries } from "@/lib/lesson-register-data";
+import { LessonSchedule } from "@/components/lesson-schedule";
+import type { LessonRegister } from "@/lib/lesson-register";
 
 export const Route = createFileRoute("/student/")({
-  head: () => ({ meta: [{ title: "Student Dashboard — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Student Dashboard — SS Academy" }, { name: "description", content: "View your SS Academy learner profile, lesson plans, and virtual class details." }, { property: "og:title", content: "Student Dashboard — SS Academy" }, { property: "og:description", content: "Your learner profile and scheduled SS Academy lessons." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="student" needsProfile>
       <DashboardShell role="student"><Dashboard /></DashboardShell>
@@ -19,9 +22,13 @@ export const Route = createFileRoute("/student/")({
 function Dashboard() {
   const { user } = useAuth();
   const [s, setS] = useState<Learner | null>(null);
+  const [lessonEntries, setLessonEntries] = useState<LessonRegister[]>([]);
   const [error, setError] = useState("");
   useEffect(() => {
-    getLearner(user!.uid).then(setS).catch((e) => setError(friendlyError(e)));
+    if (!user) return;
+    Promise.all([getLearner(user.uid), listLearnerLessonEntries(user.uid)])
+      .then(([learner, entries]) => { setS(learner); setLessonEntries(entries); })
+      .catch((e) => setError(friendlyError(e)));
   }, [user]);
   if (error) return <p className="text-destructive">{error}</p>;
   if (!s) return <Spinner />;
@@ -54,6 +61,7 @@ function Dashboard() {
           ))}
         </dl>
       </div>
+      <LessonSchedule entries={lessonEntries} />
     </div>
   );
 }
