@@ -12,6 +12,8 @@ export const Route = createFileRoute("/forgot-password")({
       { name: "description", content: "Get a link to reset your password." },
       { property: "og:title", content: "Reset Password — SS Academy" },
       { property: "og:description", content: "Reset your account password." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Forgot,

@@ -9,7 +9,7 @@ import { friendlyError } from "@/lib/firebase";
 import { addChild } from "@/lib/services";
 
 export const Route = createFileRoute("/parent/children/new")({
-  head: () => ({ meta: [{ title: "Register a Child — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Register a Child — SS Academy" }, { name: "description", content: "Add a learner to your SS Academy parent account." }, { property: "og:title", content: "Register a Child — SS Academy" }, { property: "og:description", content: "Register a learner for tutoring from your parent account." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="parent" needsProfile>
       <DashboardShell role="parent"><NewChild /></DashboardShell>

@@ -10,6 +10,8 @@ export const Route = createFileRoute("/register/")({
       { name: "description", content: "Register as a parent/guardian or as an independent student." },
       { property: "og:title", content: "Register — SS Academy" },
       { property: "og:description", content: "Choose how you'd like to register." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Choose,

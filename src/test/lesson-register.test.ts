@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { lessonEntryBelongsTo, lessonRegisterSchema, validateLessonMark, type PlannedLesson } from "@/lib/lesson-register";
 
-const lessons: PlannedLesson[] = [{ id: "lesson-1", title: "Algebra", plan: "Linear equations" }];
+const lesson: PlannedLesson = { id: "lesson-1", title: "Algebra", plan: "Linear equations" };
+const lessons: PlannedLesson[] = [lesson];
 const validInput = { startDate: "2026-11-20", meetingUrl: "https://meet.example.com/class", learnerIds: ["student-1"], lessons };
 
 describe("lesson registers", () => {
@@ -10,6 +11,10 @@ describe("lesson registers", () => {
   });
   it("requires a selected learner", () => {
     expect(lessonRegisterSchema.safeParse({ ...validInput, learnerIds: [] }).success).toBe(false);
+  });
+  it("requires a complete plan and unique lesson identifiers", () => {
+    expect(lessonRegisterSchema.safeParse({ ...validInput, lessons: [{ ...lesson, title: "", plan: "" }] }).success).toBe(false);
+    expect(lessonRegisterSchema.safeParse({ ...validInput, lessons: [lesson, lesson] }).success).toBe(false);
   });
   it("rejects invalid calendar dates and non-secure meeting links", () => {
     expect(lessonRegisterSchema.safeParse({ ...validInput, startDate: "2026-02-30" }).success).toBe(false);

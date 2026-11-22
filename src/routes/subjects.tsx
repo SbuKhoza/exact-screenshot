@@ -9,6 +9,8 @@ export const Route = createFileRoute("/subjects")({
       { name: "description", content: "Mathematics, Maths Literacy, English, Website Development and Computer Animation tutoring." },
       { property: "og:title", content: "Subjects — SS Academy" },
       { property: "og:description", content: "Mathematics, Maths Literacy, English, Website Development and Computer Animation tutoring." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SubjectsPage,

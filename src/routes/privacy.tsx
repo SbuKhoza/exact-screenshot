@@ -9,6 +9,8 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "How SS Academy collects and uses personal information, in line with POPIA." },
       { property: "og:title", content: "Privacy Policy — SS Academy" },
       { property: "og:description", content: "How we handle your and your child's information." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Privacy,

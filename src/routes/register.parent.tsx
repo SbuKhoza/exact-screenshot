@@ -8,6 +8,8 @@ export const Route = createFileRoute("/register/parent")({
       { name: "description", content: "Create a parent or guardian account to register your children for tutoring." },
       { property: "og:title", content: "Register Your Child — SS Academy" },
       { property: "og:description", content: "Parent and guardian registration." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <SignupForm role="parent" />,

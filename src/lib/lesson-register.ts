@@ -35,7 +35,8 @@ export const lessonRegisterSchema = z.object({
     id: z.string().regex(/^lesson-[1-9]\d*$/),
     title: z.string().trim().min(1, "Add a title for every lesson").max(100),
     plan: z.string().trim().min(1, "Add a plan for every lesson").max(1000),
-  })).min(1, "Add at least one lesson").max(12, "A register can have up to 12 lessons"),
+  })).min(1, "Add at least one lesson").max(12, "A register can have up to 12 lessons")
+    .refine((items) => new Set(items.map((lesson) => lesson.id)).size === items.length, "Each lesson needs a unique place in the plan"),
 });
 
 export type LessonRegisterInput = z.infer<typeof lessonRegisterSchema>;

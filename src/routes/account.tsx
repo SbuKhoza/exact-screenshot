@@ -13,7 +13,7 @@ import { issues, password } from "@/lib/validation";
 import { RequireAnyAuth } from "@/components/require-any";
 
 export const Route = createFileRoute("/account")({
-  head: () => ({ meta: [{ title: "Account Settings — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Account Settings — SS Academy" }, { name: "description", content: "Update your SS Academy account password." }, { property: "og:title", content: "Account Settings — SS Academy" }, { property: "og:description", content: "Manage your secure SS Academy account settings." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => <RequireAnyAuth><Account /></RequireAnyAuth>,
 });
 

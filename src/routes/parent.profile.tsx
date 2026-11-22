@@ -10,7 +10,7 @@ import { getParentProfile, saveParentProfile } from "@/lib/services";
 import { issues, parentProfileSchema } from "@/lib/validation";
 
 export const Route = createFileRoute("/parent/profile")({
-  head: () => ({ meta: [{ title: "Your Profile — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Your Profile — SS Academy" }, { name: "description", content: "Manage the parent contact details linked to your SS Academy account." }, { property: "og:title", content: "Your Profile — SS Academy" }, { property: "og:description", content: "Update your parent or guardian profile information." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="parent" needsProfile={false}><ProfileForm /></RequireAuth>
   ),

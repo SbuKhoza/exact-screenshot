@@ -96,8 +96,7 @@ export async function createAdminLessonRegister(
 
   const db = fb().db;
   const group = doc(collection(db, "lessonRegisters"));
-  const batch = writeBatch(db);
-  batch.set(group, {
+  await setDoc(group, {
     tenantId,
     createdBy,
     startDate: input.startDate,
@@ -106,24 +105,29 @@ export async function createAdminLessonRegister(
     learnerIds: input.learnerIds,
     createdAt: serverTimestamp(),
   });
-  for (const learner of selected) {
-    if (!learner) continue;
-    const entry = doc(collection(db, "lessonRegisterEntries"));
-    batch.set(entry, {
-      tenantId,
-      groupId: group.id,
-      learnerId: learner.id,
-      learnerUid: learner.uid ?? null,
-      parentUid: learner.parentUid,
-      learnerName: `${learner.firstName} ${learner.surname}`.trim(),
-      startDate: input.startDate,
-      meetingUrl: input.meetingUrl,
-      lessons: input.lessons,
-      lessonIds: input.lessons.map((lesson) => lesson.id),
-      createdAt: serverTimestamp(),
-    });
+  // Rules evaluate each write independently; small batches stay within Firestore's
+  // document-access-call budget while still handling a full selected class.
+  for (let offset = 0; offset < selected.length; offset += 4) {
+    const batch = writeBatch(db);
+    for (const learner of selected.slice(offset, offset + 4)) {
+      if (!learner) continue;
+      const entry = doc(collection(db, "lessonRegisterEntries"));
+      batch.set(entry, {
+        tenantId,
+        groupId: group.id,
+        learnerId: learner.id,
+        learnerUid: learner.uid ?? null,
+        parentUid: learner.parentUid,
+        learnerName: `${learner.firstName} ${learner.surname}`.trim(),
+        startDate: input.startDate,
+        meetingUrl: input.meetingUrl,
+        lessons: input.lessons,
+        lessonIds: input.lessons.map((lesson) => lesson.id),
+        createdAt: serverTimestamp(),
+      });
+    }
+    await batch.commit();
   }
-  await batch.commit();
   return group.id;
 }
 

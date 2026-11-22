@@ -9,6 +9,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Empowering learners, one class at a time. Register your child or yourself for Maths, English, Web Development and Animation tutoring." },
       { property: "og:title", content: "SS Academy — Home Tutoring" },
       { property: "og:description", content: "Empowering learners, one class at a time. Register online today." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,

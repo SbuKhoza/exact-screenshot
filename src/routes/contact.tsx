@@ -9,6 +9,8 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Call, email or message SS Academy about tutoring." },
       { property: "og:title", content: "Contact Us — SS Academy" },
       { property: "og:description", content: "Call, email or message SS Academy about tutoring." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ContactUsPage,

@@ -16,6 +16,8 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Log in to your parent or student account." },
       { property: "og:title", content: "Login — SS Academy" },
       { property: "og:description", content: "Log in to your account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Login,

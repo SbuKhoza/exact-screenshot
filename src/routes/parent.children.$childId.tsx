@@ -11,7 +11,7 @@ import { friendlyError } from "@/lib/firebase";
 import { getLearner, requestChange, updateLearner, type Learner } from "@/lib/services";
 
 export const Route = createFileRoute("/parent/children/$childId")({
-  head: () => ({ meta: [{ title: "Child Registration — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Child Registration — SS Academy" }, { name: "description", content: "Review and update a learner registration in your SS Academy account." }, { property: "og:title", content: "Child Registration — SS Academy" }, { property: "og:description", content: "Manage a learner registration and contact the academy about changes." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="parent" needsProfile>
       <DashboardShell role="parent"><Child /></DashboardShell>

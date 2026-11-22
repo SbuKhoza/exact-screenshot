@@ -9,6 +9,8 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "Quality tutoring in a safe, supportive and inspiring environment." },
       { property: "og:title", content: "About Us — SS Academy" },
       { property: "og:description", content: "Quality tutoring in a safe, supportive and inspiring environment." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AboutUsPage,

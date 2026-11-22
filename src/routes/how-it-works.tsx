@@ -9,6 +9,8 @@ export const Route = createFileRoute("/how-it-works")({
       { name: "description", content: "Register online in three simple steps." },
       { property: "og:title", content: "How It Works — SS Academy" },
       { property: "og:description", content: "Register online in three simple steps." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: HowItWorksPage,

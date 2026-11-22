@@ -9,6 +9,8 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "Terms for using the SS Academy website and registering for tutoring." },
       { property: "og:title", content: "Terms and Conditions — SS Academy" },
       { property: "og:description", content: "Website and registration terms." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Terms,

@@ -75,7 +75,10 @@ export function AdminLessonRegister({ learners, adminUid }: { learners: Learner[
       await setLessonCompletionMark(entry, lessonId, score);
       await client.invalidateQueries({ queryKey: ["admin-lesson-register-entries", tenantId, activeId] });
       setMarkNotice(`${entry.learnerName}: ${lessonTitle} marked complete.`);
-    } catch (reason) { setError(friendlyError(reason)); } finally { setBusyMark(""); }
+    } catch (reason) {
+      const localError = reason instanceof Error && (reason.message.startsWith("Enter a mark") || reason.message.startsWith("This lesson"));
+      setError(localError && reason instanceof Error ? reason.message : friendlyError(reason));
+    } finally { setBusyMark(""); }
   }
 
   return <div className="grid gap-8">

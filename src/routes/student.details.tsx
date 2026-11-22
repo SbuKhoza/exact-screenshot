@@ -9,7 +9,7 @@ import { friendlyError } from "@/lib/firebase";
 import { getLearner, saveStudentDetails } from "@/lib/services";
 
 export const Route = createFileRoute("/student/details")({
-  head: () => ({ meta: [{ title: "Your Details — SS Academy" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Your Details — SS Academy" }, { name: "description", content: "Complete or update the learner details on your SS Academy account." }, { property: "og:title", content: "Your Details — SS Academy" }, { property: "og:description", content: "Manage your learner profile and tutoring information." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: () => (
     <RequireAuth role="student" needsProfile={false}><Details /></RequireAuth>
   ),
